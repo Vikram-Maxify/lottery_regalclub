@@ -38,6 +38,10 @@ const Header = ({ children }) => {
   const sidebarRef = useRef(null);
   const menuButtonRef = useRef(null);
 
+  // TopX Purple gradient
+  const purpleGradient =
+    "bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)]";
+
   // Close sidebar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,12 +59,10 @@ const Header = ({ children }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isSidebarOpen]);
 
-  // Close sidebar on route change
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
-  // Body scroll lock
   useEffect(() => {
     if (isSidebarOpen) {
       document.body.style.overflow = "hidden";
@@ -72,114 +74,107 @@ const Header = ({ children }) => {
     };
   }, [isSidebarOpen]);
 
-  // Menu items matching the design
   const menuItems = [
-    { icon: HomeIcon, label: "Home", path: "https://lotterry.marinclub.site/" },
+    { icon: HomeIcon, label: "Home", path: "https://regalclub.live/" },
     {
       icon: Dice5,
       label: "Matka",
-      path: "https://lotterry.marinclub.site/matka/markets",
+      path: "https://regalclub.live/matka/markets",
     },
     {
       icon: Activity,
       label: "Activity",
-      path: "https://lotterry.marinclub.site/activity",
+      path: "https://regalclub.live/activity",
     },
     {
       icon: PowerIcon,
       label: "Powerhit",
-      path: "https://lotterry.marinclub.site/powerhit",
+      path: "https://regalclub.live/powerhit",
     },
     {
       icon: Wallet,
       label: "Wallet",
-      path: "https://lotterry.marinclub.site/wallet",
+      path: "https://regalclub.live/wallet",
     },
     {
       icon: User,
       label: "Profile",
-      path: "https://lotterry.marinclub.site/profile",
+      path: "https://regalclub.live/profile",
     },
   ];
 
-  // Account menu items
   const accountMenuItems = [
-    { icon: User, label: "Profile", path: "/profile", color: "text-blue-500" },
+    { icon: User, label: "Profile", path: "/profile", color: "text-blue-400" },
     {
       icon: PlusCircle,
       label: "Deposit",
       path: "/deposit",
-      color: "text-green-500",
+      color: "text-green-400",
     },
     {
       icon: History,
       label: "Deposit History",
       path: "/deposit-history",
-      color: "text-purple-500",
+      color: "text-purple-400",
     },
     {
       icon: ArrowUpRight,
       label: "Withdrawal",
       path: "/withdrawal",
-      color: "text-orange-500",
+      color: "text-orange-400",
     },
     {
       icon: ArrowDownLeft,
       label: "Withdrawal History",
       path: "/withdrawal-history",
-      color: "text-red-500",
+      color: "text-red-400",
     },
     {
       icon: Gift,
       label: "Refer & Earn",
       path: "/promo",
-      color: "text-pink-500",
+      color: "text-pink-400",
     },
     {
       icon: ClipboardList,
       label: "All Bet History",
       path: "/bet-history",
-      color: "text-indigo-500",
+      color: "text-indigo-400",
     },
     {
       icon: ClipboardList,
       label: "PowerHit History",
       path: "/powerhit/history",
-      color: "text-indigo-500",
+      color: "text-indigo-400",
     },
     {
       icon: Key,
       label: "Change Password",
       path: "/change-password",
-      color: "text-yellow-600",
+      color: "text-yellow-400",
     },
     {
       icon: MessageCircle,
       label: "Support Chat",
       path: "/support-chat",
-      color: "text-cyan-500",
+      color: "text-cyan-400",
     },
   ];
 
-  const MAIN_LOGIN_URL =
-    "https://lotterry.marinclub.site/login";
+  const MAIN_LOGIN_URL = "https://regalclub.live/login";
 
   const handleLogout = async () => {
     try {
       await dispatch(logout()).unwrap();
-
       setIsSidebarOpen(false);
-
-      // Main domain login
       window.location.replace(MAIN_LOGIN_URL);
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
+
   const isActiveRoute = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
+    if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
@@ -199,28 +194,12 @@ const Header = ({ children }) => {
 
   const getAvatar = () => {
     const name = getUserDisplayName();
-
     return (
       user?.profilePic ||
-      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        name,
-      )}&background=FBBF24&color=fff&size=128`
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=B45CFF&color=fff&size=128`
     );
   };
 
-  const getAvatarGradient = () => {
-    const gradients = [
-      "from-yellow-400 to-orange-500",
-      "from-blue-400 to-purple-500",
-      "from-green-400 to-teal-500",
-      "from-pink-400 to-rose-500",
-      "from-indigo-400 to-blue-500",
-    ];
-    const index = getUserDisplayName().length % gradients.length;
-    return gradients[index];
-  };
-
-  // WINZOX Logo Component
   const WinzoxLogo = ({ className = "h-48" }) => (
     <img
       src="https://i.ibb.co/bRDCrgMB/4f0fb13d-8dd5-44fd-9bfa-d1e47e94d5a7.png"
@@ -232,26 +211,24 @@ const Header = ({ children }) => {
   return (
     <>
       {/* ================= MAIN CONTENT ================= */}
-      <div className="flex flex-col bg-gradient-to-b from-gray-50 to-white">
-        {/* ================= TOP NAVBAR ================= */}
-        <div className="h-16 border-b border-white/40 bg-white/80 backdrop-blur-xl sticky top-0 z-40 shadow-lg shadow-gray-100/50 transform-gpu">
+      <div className="flex flex-col bg-[#0B0410]">
+        {/* TOP NAVBAR */}
+        <div className="h-16 border-b border-[#2a1b3d] bg-[#0B0410]/95 backdrop-blur-xl sticky top-0 z-40 shadow-lg shadow-black/30 transform-gpu">
           <div className="h-full flex items-center px-4 sm:px-6">
-            {/* Left - Menu Button & Logo */}
+            {/* Left - Menu & Logo */}
             <div className="flex items-center gap-2 md:gap-4">
-              {/* Mobile Menu Button */}
               <button
                 ref={menuButtonRef}
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsSidebarOpen(!isSidebarOpen);
                 }}
-                className="md:hidden text-gray-700 hover:text-yellow-500 transition-all duration-500 p-2 -ml-2 hover:bg-gradient-to-r hover:from-yellow-50/60 hover:to-orange-50/60 rounded-2xl transform-gpu hover:scale-110 hover:rotate-y-6 [transform-style:preserve-3d]"
+                className="md:hidden text-gray-300 hover:text-[#C77AFF] transition-all duration-500 p-2 -ml-2 hover:bg-[#1C0F2B] rounded-2xl transform-gpu hover:scale-110"
                 aria-label="Toggle menu"
               >
                 <Menu size={22} />
               </button>
 
-              {/* Logo - Always Left Aligned */}
               <Link
                 to="/"
                 className="flex items-center transform-gpu hover:scale-105 transition-all duration-500"
@@ -260,26 +237,22 @@ const Header = ({ children }) => {
               </Link>
             </div>
 
-            {/* Center - Empty for spacing */}
             <div className="flex-1"></div>
 
-            {/* Right - Login & Register Buttons */}
+            {/* Right - Auth Buttons */}
             <div className="flex items-center gap-2">
               {isAuthenticated ? (
                 <>
-                  {/* Desktop Avatar/Name */}
                   <Link
                     to="/account"
-                    className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-black hover:shadow-2xl transition-all duration-500"
+                    className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-white hover:bg-[#1C0F2B] transition-all duration-500"
                   >
                     <img
                       src={getAvatar()}
                       alt={getUserDisplayName()}
-                      className="w-7 h-7 rounded-full object-cover border-2 border-yellow-400 shadow-lg transform-gpu hover:scale-110 transition-all duration-300"
+                      className="w-7 h-7 rounded-full object-cover border-2 border-[#B45CFF] shadow-lg transform-gpu hover:scale-110 transition-all duration-300"
                       onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          getUserDisplayName(),
-                        )}&background=FBBF24&color=fff&size=128`;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getUserDisplayName())}&background=B45CFF&color=fff&size=128`;
                       }}
                     />
                     <span className="text-sm font-bold">
@@ -287,177 +260,138 @@ const Header = ({ children }) => {
                     </span>
                   </Link>
 
-                  {/* Mobile Avatar only */}
                   <Link to="/account" className="md:hidden flex items-center">
                     <img
                       src={getAvatar()}
                       alt={getUserDisplayName()}
-                      className="w-8 h-8 rounded-full object-cover border-2 border-yellow-400 shadow-lg transform-gpu hover:scale-110 transition-all duration-300"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-[#B45CFF] shadow-lg transform-gpu hover:scale-110 transition-all duration-300"
                       onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                          getUserDisplayName(),
-                        )}&background=FBBF24&color=fff&size=128`;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getUserDisplayName())}&background=B45CFF&color=fff&size=128`;
                       }}
                     />
                   </Link>
                 </>
-              ) : (
-                <>
-                  {/* <Link
-                    to="/login"
-                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-gray-400 text-black text-sm"
-                  >
-                    <LogIn size={16} />
-                    <span className="hidden sm:inline">LOGIN</span>
-                    <span className="sm:hidden">Login</span>
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="flex ml-3 items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gradient-to-b from-[#FFF19A] via-[#FFC928] to-[#D99200]
-border border-[#FFD75A] shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] text-black text-sm"
-                  >
-                    <UserPlus size={16} />
-                    <span className="hidden sm:inline">REGISTER</span>
-                    <span className="sm:hidden">Register</span>
-                  </Link> */}
-                </>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
-
-        {/* ================= PAGE CONTENT ================= */}
       </div>
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden perspective-1000">
         <div className="relative mx-auto max-w-full">
-          <div className="relative h-[72px] bg-white/95 backdrop-blur-xl rounded-t-3xl border-t border-white/40 shadow-[0_-8px_40px_rgba(0,0,0,0.08)] transform-gpu translate-y-0 transition-all duration-700 [transform-style:preserve-3d]">
-            {/* Grid Layout - 5 columns */}
+          <div className="relative h-[72px] bg-[#1C0F2B]/95 backdrop-blur-xl rounded-t-3xl border-t border-[#2a1b3d] shadow-[0_-8px_40px_rgba(0,0,0,0.6)] transform-gpu translate-y-0 transition-all duration-700 [transform-style:preserve-3d]">
             <div className="grid grid-cols-5 h-full w-full">
               {/* Home */}
               <Link
                 to="/"
-                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${location.pathname === "/"
-                    ? "text-yellow-600"
-                    : "text-gray-500 hover:text-yellow-600"
-                  } transform-gpu hover:scale-110 hover:-translate-y-2 hover:rotate-y-6 [transform-style:preserve-3d]`}
+                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${
+                  location.pathname === "/"
+                    ? "text-[#C77AFF]"
+                    : "text-gray-500 hover:text-[#C77AFF]"
+                } transform-gpu hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]`}
               >
                 <HomeIcon
                   size={20}
                   strokeWidth={location.pathname === "/" ? 2.5 : 2}
-                  className={`transition-all duration-500 ${location.pathname === "/"
-                      ? "text-yellow-600"
-                      : "text-gray-500"
-                    }`}
+                  className={`transition-all duration-500 ${location.pathname === "/" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Home</span>
                 {location.pathname === "/" && (
-                  <div className="absolute top-[3.5rem] w-8 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg shadow-yellow-500/40 animate-pulse-slow"></div>
+                  <div
+                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
+                  ></div>
                 )}
               </Link>
 
               {/* Activity */}
               <Link
-                to="https://lotterry.marinclub.site/activity"
-                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${location.pathname === "/activity"
-                    ? "text-yellow-600"
-                    : "text-gray-500 hover:text-yellow-600"
-                  } transform-gpu hover:scale-110 hover:-translate-y-2 hover:rotate-y-6 [transform-style:preserve-3d]`}
+                to="https://regalclub.live/activity"
+                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${
+                  location.pathname === "/activity"
+                    ? "text-[#C77AFF]"
+                    : "text-gray-500 hover:text-[#C77AFF]"
+                } transform-gpu hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]`}
               >
                 <Activity
                   size={20}
                   strokeWidth={location.pathname === "/activity" ? 2.5 : 2}
-                  className={`transition-all duration-500 ${location.pathname === "/activity"
-                      ? "text-yellow-600"
-                      : "text-gray-500"
-                    }`}
+                  className={`transition-all duration-500 ${location.pathname === "/activity" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Activity</span>
                 {location.pathname === "/activity" && (
-                  <div className="absolute top-[3.5rem] w-8 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg shadow-yellow-500/40 animate-pulse-slow"></div>
+                  <div
+                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
+                  ></div>
                 )}
               </Link>
 
-              {/* Empty Space for Floating Button */}
               <div></div>
 
               {/* Wallet */}
               <Link
-                to="https://lotterry.marinclub.site/wallet"
-                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${location.pathname === "/wallet"
-                    ? "text-yellow-600"
-                    : "text-gray-500 hover:text-yellow-600"
-                  } transform-gpu hover:scale-110 hover:-translate-y-2 hover:rotate-y-6 [transform-style:preserve-3d]`}
+                to="https://regalclub.live/wallet"
+                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${
+                  location.pathname === "/wallet"
+                    ? "text-[#C77AFF]"
+                    : "text-gray-500 hover:text-[#C77AFF]"
+                } transform-gpu hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]`}
               >
                 <Wallet
                   size={20}
                   strokeWidth={location.pathname === "/wallet" ? 2.5 : 2}
-                  className={`transition-all duration-500 ${location.pathname === "/wallet"
-                      ? "text-yellow-600"
-                      : "text-gray-500"
-                    }`}
+                  className={`transition-all duration-500 ${location.pathname === "/wallet" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Wallet</span>
                 {location.pathname === "/wallet" && (
-                  <div className="absolute top-[3.5rem] w-8 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg shadow-yellow-500/40 animate-pulse-slow"></div>
+                  <div
+                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
+                  ></div>
                 )}
               </Link>
 
-              {/* Profile */}
+              {/* Account */}
               <Link
-                to="https://lotterry.marinclub.site/account"
-                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${location.pathname === "/profile"
-                    ? "text-yellow-600"
-                    : "text-gray-500 hover:text-yellow-600"
-                  } transform-gpu hover:scale-110 hover:-translate-y-2 hover:rotate-y-6 [transform-style:preserve-3d]`}
+                to="https://regalclub.live/account"
+                className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${
+                  location.pathname === "/account"
+                    ? "text-[#C77AFF]"
+                    : "text-gray-500 hover:text-[#C77AFF]"
+                } transform-gpu hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]`}
               >
                 <User
                   size={20}
                   strokeWidth={location.pathname === "/account" ? 2.5 : 2}
-                  className={`transition-all duration-500 ${location.pathname === "/account"
-                      ? "text-yellow-600"
-                      : "text-gray-500"
-                    }`}
+                  className={`transition-all duration-500 ${location.pathname === "/account" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Account</span>
                 {location.pathname === "/account" && (
-                  <div className="absolute top-[3.5rem] w-8 h-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-lg shadow-yellow-500/40 animate-pulse-slow"></div>
+                  <div
+                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
+                  ></div>
                 )}
               </Link>
             </div>
 
-            {/* Floating Promo Button with 3D */}
+            {/* Floating Promo Button */}
             <Link
-              to="https://lotterry.marinclub.site/promo"
+              to="https://regalclub.live/promo"
               className="absolute left-1/2 -translate-x-1/2 -top-7 group perspective-1000"
             >
               <div className="relative transform-gpu transition-all duration-700 hover:rotate-y-12 hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur-2xl opacity-30 group-hover:opacity-70 transition-all duration-700 animate-pulse-slow"></div>
-                <div className="w-[78px] h-[78px] rounded-full bg-white shadow-2xl relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-[#B45CFF] to-[#7418F5] blur-2xl opacity-30 group-hover:opacity-70 transition-all duration-700 animate-pulse-slow"></div>
+                <div className="w-[78px] h-[78px] rounded-full bg-[#1C0F2B] shadow-2xl relative border border-[#2a1b3d]">
                   <div
-                    className="w-full h-full rounded-full bg-gradient-to-b from-[#FFF19A] via-[#FFC928] to-[#D99200]
-border border-[#FFD75A]
-shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)]"
+                    className={`w-full h-full rounded-full ${purpleGradient} flex flex-col items-center justify-center group-hover:scale-105 transition-all duration-500`}
                   >
-                    <div
-                      className="w-full h-full rounded-full bg-gradient-to-b from-[#FFF19A] via-[#FFC928] to-[#D99200]
-border border-[#FFD75A]
-shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] flex flex-col items-center justify-center group-hover:scale-105 transition-all duration-500"
-                    >
-                      <Gift
-                        size={22}
-                        className="text-black"
-                        strokeWidth={2.3}
-                      />
-                      <span className="text-[9px] font-bold text-black leading-none mt-0.5">
-                        Promo
-                      </span>
-                    </div>
+                    <Gift size={22} className="text-white" strokeWidth={2.3} />
+                    <span className="text-[9px] font-bold text-white leading-none mt-0.5">
+                      Promo
+                    </span>
                   </div>
                 </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-pulse-slow">
-                  <Star size={10} className="text-white" fill="white" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#F1C40F] rounded-full flex items-center justify-center shadow-lg animate-pulse-slow">
+                  <Star size={10} className="text-[#0B0410]" fill="#0B0410" />
                 </div>
               </div>
             </Link>
@@ -467,108 +401,107 @@ shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] f
 
       {/* ================= MOBILE SIDEBAR ================= */}
       <div
-        className={`fixed inset-0 z-50 md:hidden transition-all duration-500 ${isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
-          }`}
+        className={`fixed inset-0 z-50 md:hidden transition-all duration-500 ${
+          isSidebarOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
         onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setIsSidebarOpen(false);
-          }
+          if (e.target === e.currentTarget) setIsSidebarOpen(false);
         }}
       >
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-md"></div>
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
         <div
           ref={sidebarRef}
-          className={`fixed left-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-            } perspective-1000`}
+          className={`fixed left-0 top-0 h-full w-80 bg-[#1C0F2B] backdrop-blur-xl shadow-2xl transform transition-all duration-500 ease-out border-r border-[#2a1b3d] ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } perspective-1000`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex flex-col h-full transform-gpu hover:rotate-y-2 transition-all duration-700 [transform-style:preserve-3d]">
+          <div className="flex flex-col h-full transform-gpu transition-all duration-700 [transform-style:preserve-3d]">
             {/* Header */}
-            <div className="flex items-center justify-center p-4 border-b border-white/40 bg-gradient-to-r from-yellow-50/40 to-orange-50/40">
+            <div className="flex items-center justify-center p-4 border-b border-[#2a1b3d] bg-[#12061C]">
               <Link
                 to="/"
                 onClick={() => setIsSidebarOpen(false)}
-                className="transform-gpu hover:scale-105 hover:rotate-y-6 transition-all duration-500 [transform-style:preserve-3d]"
+                className="transform-gpu hover:scale-105 transition-all duration-500"
               >
                 <WinzoxLogo className="h-16" />
               </Link>
             </div>
 
             {/* Tagline */}
-            <div className="px-4 py-2 mx-4 mt-2 bg-white/60 rounded-2xl border border-gray-200/50 shadow-lg">
-              <div className="flex items-center justify-center gap-2 text-[10px] text-gray-700 tracking-widest font-bold">
+            <div className="px-4 py-2 mx-4 mt-2 bg-[#12061C] rounded-2xl border border-[#2a1b3d] shadow-lg">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-gray-300 tracking-widest font-bold">
                 <Sparkles
                   size={10}
-                  className="text-yellow-500 animate-sparkle"
+                  className="text-[#B45CFF] animate-sparkle"
                 />
-                <span className="text-gray-700">PLAY • WIN • REPEAT</span>
+                <span>PLAY • WIN • REPEAT</span>
                 <Sparkles
                   size={10}
-                  className="text-yellow-500 animate-sparkle"
+                  className="text-[#B45CFF] animate-sparkle"
                 />
               </div>
             </div>
 
             {/* User Info */}
             {isAuthenticated && user && (
-              <div className="px-4 py-4 border-b border-white/40 bg-gradient-to-r from-yellow-50/30 to-orange-50/30">
+              <div className="px-4 py-4 border-b border-[#2a1b3d] bg-[#12061C]">
                 <Link
-                  to="https://lotterry.marinclub.site/account"
+                  to="https://regalclub.live/account"
                   onClick={() => setIsSidebarOpen(false)}
                   className="flex items-center gap-3 group"
                 >
                   <img
                     src={getAvatar()}
                     alt={getUserDisplayName()}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-yellow-400 shadow-lg transform-gpu group-hover:scale-110 group-hover:rotate-y-6 transition-all duration-500 [transform-style:preserve-3d]"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-[#B45CFF] shadow-lg transform-gpu group-hover:scale-110 transition-all duration-500"
                     onError={(e) => {
-                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        getUserDisplayName(),
-                      )}&background=FBBF24&color=fff&size=128`;
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getUserDisplayName())}&background=B45CFF&color=fff&size=128`;
                     }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">
+                    <p className="font-bold text-white group-hover:text-[#C77AFF] transition-colors">
                       {getUserDisplayName()}
                     </p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-gray-400 truncate">
                       {getUserSubtitle()}
                     </p>
                   </div>
                   <ChevronRight
                     size={16}
-                    className="text-gray-400 group-hover:text-yellow-500 transition-colors"
+                    className="text-gray-500 group-hover:text-[#C77AFF] transition-colors"
                   />
                 </Link>
               </div>
             )}
 
             {/* Navigation */}
-            <div className="px-3 py-4 overflow-y-auto h-[calc(100%-14rem)] scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+            <div className="px-3 py-4 overflow-y-auto h-[calc(100%-14rem)] scrollbar-thin scrollbar-thumb-[#2a1b3d] scrollbar-track-transparent">
               <div className="space-y-1.5">
                 {menuItems.map((item, index) => (
                   <Link
                     key={index}
                     to={item.path}
                     onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 transition-all duration-500 [transform-style:preserve-3d] ${isActiveRoute(item.path)
-                        ? "bg-gradient-to-r from-yellow-400/20 to-orange-400/20 text-yellow-600 border border-yellow-200/30 transform-gpu scale-105 shadow-lg shadow-yellow-500/15"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-yellow-50/60 hover:to-orange-50/60 transform-gpu hover:translate-x-2 hover:scale-105"
-                      }`}
+                    className={`flex items-center gap-3 rounded-2xl px-4 py-3.5 transition-all duration-500 ${
+                      isActiveRoute(item.path)
+                        ? "bg-[#9B59B6]/15 text-[#C77AFF] border border-[#9B59B6]/40 scale-105"
+                        : "text-gray-400 hover:text-white hover:bg-[#2a1b3d]"
+                    }`}
                   >
                     <item.icon
                       size={20}
                       className={
                         isActiveRoute(item.path)
-                          ? "text-yellow-500"
-                          : "text-gray-400"
+                          ? "text-[#C77AFF]"
+                          : "text-gray-500"
                       }
                     />
                     <span className="text-sm font-bold">{item.label}</span>
                     {isActiveRoute(item.path) && (
                       <ChevronRight
                         size={16}
-                        className="ml-auto text-yellow-500"
+                        className="ml-auto text-[#C77AFF]"
                       />
                     )}
                   </Link>
@@ -577,12 +510,12 @@ shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] f
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 w-full border-t border-white/40 p-4 bg-gradient-to-b from-gray-50/30 to-white/30">
+            <div className="absolute bottom-0 left-0 w-full border-t border-[#2a1b3d] p-4 bg-[#1C0F2B]">
               {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
                   disabled={loading}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-gray-600 hover:text-red-500 hover:bg-gradient-to-r hover:from-red-50/60 hover:to-red-50/30 w-full transition-all duration-500 disabled:opacity-50 transform-gpu hover:scale-105 [transform-style:preserve-3d]"
+                  className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 w-full transition-all duration-500 disabled:opacity-50 transform-gpu hover:scale-105"
                 >
                   <LogOut size={20} />
                   {loading ? (
@@ -597,17 +530,17 @@ shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] f
               ) : (
                 <div className="space-y-2.5">
                   <Link
-                    to="https://lotterry.marinclub.site/login"
+                    to="https://regalclub.live/login"
                     onClick={() => setIsSidebarOpen(false)}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-gray-600 hover:text-gray-900 hover:bg-gradient-to-r hover:from-yellow-50/60 hover:to-orange-50/60 transition-all duration-500 transform-gpu hover:translate-x-2 [transform-style:preserve-3d]"
+                    className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-gray-400 hover:text-white hover:bg-[#2a1b3d] transition-all duration-500"
                   >
-                    <LogIn size={20} className="text-gray-400" />
+                    <LogIn size={20} className="text-gray-500" />
                     Login
                   </Link>
                   <Link
-                    to="https://lotterry.marinclub.site/register"
+                    to="https://regalclub.live/register"
                     onClick={() => setIsSidebarOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 bg-gradient-to-r from-yellow-400 via-orange-400 to-orange-500 text-black font-bold hover:shadow-2xl hover:shadow-yellow-500/40 transition-all duration-500 transform-gpu hover:scale-105 [transform-style:preserve-3d]"
+                    className={`flex items-center justify-center gap-2 rounded-2xl px-4 py-3.5 ${purpleGradient} text-white font-bold transition-all duration-500 transform-gpu hover:scale-105`}
                   >
                     <UserPlus size={20} />
                     Register Now
@@ -620,98 +553,26 @@ shadow-[inset_0_1px_2px_rgba(255,255,255,0.95),0_2px_7px_rgba(210,145,0,0.45)] f
       </div>
 
       <style>{`
-        .bg-surface {
-          background-color: #f7f9fb;
-        }
-        .animate-slideDown {
-          animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px) rotateX(-15deg) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) rotateX(0) scale(1);
-          }
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: #e5e7eb;
-          border-radius: 9999px;
-        }
+        .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a1b3d; border-radius: 9999px; }
         @keyframes pulse-slow {
           0%, 100% { opacity: 0.5; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.08); }
         }
-        .animate-pulse-slow {
-          animation: pulse-slow 3s ease-in-out infinite;
-        }
+        .animate-pulse-slow { animation: pulse-slow 3s ease-in-out infinite; }
         @keyframes sparkle {
           0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
           50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
         }
-        .animate-sparkle {
-          animation: sparkle 2.5s ease-in-out infinite;
-        }
-        .perspective-1000 {
-          perspective: 1000px;
-        }
-        .transform-gpu {
-          transform: translate3d(0, 0, 0);
-          backface-visibility: hidden;
-        }
-        [transform-style="preserve-3d"] {
-          transform-style: preserve-3d;
-        }
-        .hover\\:translate-x-2:hover {
-          transform: translateX(0.5rem);
-        }
-        .hover\\:translate-x-3:hover {
-          transform: translateX(0.75rem);
-        }
-        .hover\\:translate-z-6:hover {
-          transform: translateZ(1.5rem);
-        }
-        .hover\\:translate-z-8:hover {
-          transform: translateZ(2rem);
-        }
-        .hover\\:rotate-y-2:hover {
-          transform: rotateY(2deg);
-        }
-        .hover\\:rotate-y-3:hover {
-          transform: rotateY(3deg);
-        }
-        .hover\\:rotate-y-6:hover {
-          transform: rotateY(6deg);
-        }
-        .hover\\:rotate-y-12:hover {
-          transform: rotateY(12deg);
-        }
-        .hover\\:scale-105 {
-          transform: scale(1.05);
-        }
-        .hover\\:scale-110 {
-          transform: scale(1.1);
-        }
-        .hover\\:-translate-y-1:hover {
-          transform: translateY(-0.25rem);
-        }
-        .hover\\:-translate-y-2:hover {
-          transform: translateY(-0.5rem);
-        }
-        .hover\\:-translate-y-3:hover {
-          transform: translateY(-0.75rem);
-        }
-        .hover\\:shadow-2xl:hover {
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
+        .animate-sparkle { animation: sparkle 2.5s ease-in-out infinite; }
+        .perspective-1000 { perspective: 1000px; }
+        .transform-gpu { transform: translate3d(0, 0, 0); backface-visibility: hidden; }
+        [transform-style="preserve-3d"] { transform-style: preserve-3d; }
+        .hover\\:scale-105 { transform: scale(1.05); }
+        .hover\\:scale-110 { transform: scale(1.1); }
+        .hover\\:-translate-y-1:hover { transform: translateY(-0.25rem); }
+        .hover\\:-translate-y-2:hover { transform: translateY(-0.5rem); }
       `}</style>
     </>
   );

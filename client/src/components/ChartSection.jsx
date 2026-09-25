@@ -41,7 +41,7 @@ function ChartSection({ investment }) {
     startRange: null,
   });
 
-  const [zoomOutStep, setZoomOutStep] = useState(2); // values: 0, 1, 2
+  const [zoomOutStep, setZoomOutStep] = useState(2);
 
   const [times, setTime] = useState({
     minute: 0,
@@ -67,16 +67,18 @@ function ChartSection({ investment }) {
   const candleStartTimeRef = useRef(null);
   const initialAnimationDone = useRef(false);
 
-  // Ref for the chart wrapper div — needed for native (non-passive) wheel listener
   const chartWrapperRef = useRef(null);
+
+  // TopX Purple gradient
+  const purpleGradient =
+    "bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)]";
 
   useEffect(() => {
     if (investment > 0) {
       setAnn(investment);
     }
   });
-  // Shared WebSocket connection for synchronized trading time.
-  // This component does not create its own socket.
+
   useEffect(() => {
     const unsubscribe = subscribeSocket((data) => {
       if (data.event === "timeUpdate_30") {
@@ -91,18 +93,17 @@ function ChartSection({ investment }) {
     return unsubscribe;
   }, []);
 
-  // Initial data fetch
   useEffect(() => {
     if (!isInitialFetchDone.current) {
       dispatch(getBetGrapgResult());
       isInitialFetchDone.current = true;
     }
   }, [dispatch]);
+
   useEffect(() => {
     dispatch(getBetGrapgResult());
   }, [dispatch]);
 
-  // Periodic data refresh
   useEffect(() => {
     if (
       isInitialFetchDone.current &&
@@ -114,7 +115,6 @@ function ChartSection({ investment }) {
     }
   }, [times, dispatch]);
 
-  // Transform trade data for chart
   const transformedData = useMemo(() => {
     if (!allTrade) return [];
     return allTrade
@@ -127,7 +127,7 @@ function ChartSection({ investment }) {
         ],
         x: new Date(trade.x),
       }))
-      .sort((a, b) => a.x - b.x); // Ensure chronological order
+      .sort((a, b) => a.x - b.x);
   }, [allTrade]);
 
   const prevPriceRef = useRef("1.44634");
@@ -152,8 +152,6 @@ function ChartSection({ investment }) {
     max: latestClose + offset,
   });
 
-  // Keep refs of the latest data/range so the native wheel listener
-  // (registered once) never reads stale closures.
   const transformedDataRef = useRef(transformedData);
   useEffect(() => {
     transformedDataRef.current = transformedData;
@@ -164,13 +162,16 @@ function ChartSection({ investment }) {
     xAxisRangeRef.current = xAxisRange;
   }, [xAxisRange]);
 
-  // Chart options configuration
+  // ============================================================
+  // CHART OPTIONS — TopX Purple Theme
+  // ============================================================
   const options = useMemo(
     () => ({
       chart: {
         type: "candlestick",
         height: 1000,
-        background: "#FFFFFF",
+        background: "#1C0F2B", // TopX Dark Purple bg
+        foreColor: "#9B59B6", // Purple text
         animations: {
           enabled: true,
           easing: "easeinout",
@@ -195,7 +196,7 @@ function ChartSection({ investment }) {
             pan: true,
             reset: true,
           },
-          autoSelected: "zoom", // Default to zoom mode
+          autoSelected: "zoom",
         },
         zoom: {
           enabled: true,
@@ -203,17 +204,17 @@ function ChartSection({ investment }) {
           autoScaleYaxis: true,
           limits: {
             y: {
-              min: 0.001, // Minimum y-axis range
+              min: 0.001,
               max: undefined,
             },
           },
           zoomedArea: {
             fill: {
-              color: "#D8C28A",
-              opacity: 0.4,
+              color: "#B45CFF", // TopX Purple
+              opacity: 0.3,
             },
             stroke: {
-              color: "#B8891A",
+              color: "#7418F5", // TopX Purple
               opacity: 0.8,
               width: 1,
             },
@@ -353,14 +354,14 @@ function ChartSection({ investment }) {
         yaxis: [
           {
             y: latestClose,
-            borderColor: "#C89B3C",
+            borderColor: "#B45CFF", // TopX Purple
             strokeDashArray: 4,
             label: {
               text: `(${latestClose})`,
               style: {
                 color: "#FFFFFF",
-                background: "#C89B3C",
-                borderColor: "#B8891A",
+                background: "#7418F5", // TopX Purple
+                borderColor: "#B45CFF",
               },
             },
           },
@@ -368,7 +369,7 @@ function ChartSection({ investment }) {
         xaxis: [
           {
             x: latestPrice,
-            borderColor: "#D2AE55",
+            borderColor: "#9B59B6", // TopX Purple
             label: {
               style: {
                 color: "#fff",
@@ -378,17 +379,17 @@ function ChartSection({ investment }) {
           },
         ],
       },
-      title: { text: "", align: "left", style: { color: "#6B5420" } },
+      title: { text: "", align: "left", style: { color: "#B45CFF" } },
       xaxis: {
         type: "datetime",
         min: xAxisRange.min,
         max: xAxisRange.max,
         labels: {
-          style: { colors: "#A17A22" },
+          style: { colors: "#9B59B6" }, // TopX Purple
           datetimeFormatter: { hour: "HH:mm", minute: "HH:mm:ss" },
         },
-        axisBorder: { color: "#E1D6BC" },
-        axisTicks: { color: "#E1D6BC" },
+        axisBorder: { color: "#2a1b3d" },
+        axisTicks: { color: "#2a1b3d" },
         tickPlacement: "on",
         range: undefined,
         tickAmount: "dataPoints",
@@ -409,11 +410,11 @@ function ChartSection({ investment }) {
         max: yAxisRange.max,
         tooltip: { enabled: true },
         labels: {
-          style: { colors: "#A17A22" },
+          style: { colors: "#9B59B6" }, // TopX Purple
           formatter: (val) => val.toFixed(5),
         },
         forceNiceScale: true,
-        yxisBorder: { color: "#E1D6BC" },
+        yxisBorder: { color: "#2a1b3d" },
         tickAmount: 8,
         stepSize: 4,
         opposite: true,
@@ -428,7 +429,7 @@ function ChartSection({ investment }) {
         },
       },
       grid: {
-        borderColor: "#E9E1CF",
+        borderColor: "#2a1b3d", // TopX Dark border
         strokeDashArray: 0,
         xaxis: {
           lines: {
@@ -438,7 +439,10 @@ function ChartSection({ investment }) {
       },
       plotOptions: {
         candlestick: {
-          colors: { upward: "#10a055", downward: "#e85b4e" },
+          colors: {
+            upward: "#00E676", // TopX Green
+            downward: "#E74C3C", // TopX Red
+          },
           wick: { useFillColor: true },
           barWidth: "100%",
         },
@@ -452,7 +456,6 @@ function ChartSection({ investment }) {
     [xAxisRange, transformedData],
   );
 
-  // Calculate dynamic offset based on zoom level
   const getDynamicOffset = () => {
     const baseMinOffset = 0.0005;
 
@@ -746,11 +749,6 @@ function ChartSection({ investment }) {
     };
   }, []);
 
-  // ---- NEW: mouse wheel support (zoom + horizontal pan) ----
-  // Plain vertical scroll  -> zoom in/out (centered on current view)
-  // Shift+scroll / trackpad horizontal swipe -> pan left/right
-  // Registered as a native listener with { passive: false } because React's
-  // synthetic onWheel is passive by default and preventDefault() there is a no-op.
   useEffect(() => {
     const wrapper = chartWrapperRef.current;
     if (!wrapper) return;
@@ -774,7 +772,6 @@ function ChartSection({ investment }) {
       setIsManualPan(true);
 
       if (isHorizontalIntent) {
-        // ---- PAN LEFT / RIGHT ----
         const rawDelta = e.shiftKey && e.deltaX === 0 ? e.deltaY : e.deltaX;
         const span = currentRange.max - currentRange.min;
         const panAmount = (rawDelta / 100) * (span * 0.08);
@@ -795,8 +792,6 @@ function ChartSection({ investment }) {
           return { min: newMin, max: newMax };
         });
       } else {
-        // ---- ZOOM IN / OUT ----
-        // deltaY > 0 => scrolled down => zoom out; deltaY < 0 => zoom in
         const zoomFactor = e.deltaY > 0 ? 1.12 : 0.88;
         const span = currentRange.max - currentRange.min;
         let newSpan = span * zoomFactor;
@@ -827,7 +822,6 @@ function ChartSection({ investment }) {
     };
   }, []);
 
-  // Dropdown content state
   const [showButton, SetShowButton] = useState(false);
   const [activeFilter, setActiveFilter] = useState("CURRENCIES");
   const [searchQuery, setSearchQuery] = useState("");
@@ -924,110 +918,85 @@ function ChartSection({ investment }) {
   );
 
   return (
-    <div className="app">
+    <div className="app bg-[#0B0410]">
       <div className="chart-container relative">
         {/* Top bar */}
         <div className="items-center gap-2 p-4 z-[10] absolute -top-6 left-0 hidden lg:flex">
           <div>
             <button
               onClick={() => SetShowButton((prev) => !prev)}
-              className="bg-[#C89B3C] hover:bg-[#B88922] rounded-md text-white p-3"
+              className={`rounded-md text-white p-3 ${purpleGradient} hover:scale-105 transition-all`}
             >
               <FaPlus className="size-4" />
             </button>
             {showButton && (
               <div className="absolute top-[80px] z-50">
-                <div className="bg-white border border-[#D6B65A]/50 rounded-xl shadow-[0_12px_40px_rgba(116,85,15,0.18)] w-[750px] h-[600px] overflow-hidden">
+                <div className="bg-[#1C0F2B] border border-[#2a1b3d] rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] w-[750px] h-[600px] overflow-hidden">
                   {/* Header */}
-                  <div className="flex justify-between items-center px-5 py-4 border-b border-[#E9DFC4] bg-gradient-to-r from-white via-[#FFFDF8] to-[#FBF5E8]">
+                  <div className="flex justify-between items-center px-5 py-4 border-b border-[#2a1b3d] bg-[#12061C]">
                     <div className="flex items-center gap-2">
-                      <div className="w-1 h-6 rounded-full bg-gradient-to-b from-[#E9C961] via-[#C99A29] to-[#A97808]" />
-
-                      <h3 className="font-semibold text-lg text-[#2F281D]">
+                      <div
+                        className={`w-1 h-6 rounded-full ${purpleGradient}`}
+                      />
+                      <h3 className="font-semibold text-lg text-white">
                         Select trade pair
                       </h3>
                     </div>
 
                     <button
                       onClick={() => SetShowButton(false)}
-                      className="w-9 h-9 flex items-center justify-center rounded-lg
-                     bg-[#F8F2E4]
-                     border border-[#E6D6A8]
-                     text-[#8A6514]
-                     hover:bg-[#D4AF37]
-                     hover:text-white
-                     hover:border-[#C99A29]
-                     transition-all duration-200"
+                      className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#1C0F2B] border border-[#2a1b3d] text-[#C77AFF] hover:bg-[#2a1b3d] hover:border-[#9B59B6]/50 transition-all duration-200"
                     >
                       <FaTimes className="text-sm" />
                     </button>
                   </div>
 
                   {/* Filters */}
-                  <div className="flex items-center px-5 py-3 border-b border-[#E9DFC4] bg-white">
+                  <div className="flex items-center px-5 py-3 border-b border-[#2a1b3d] bg-[#12061C]">
                     {filters.map((filter) => (
                       <button
                         key={filter}
                         className={`relative px-3 py-2 text-xs font-bold tracking-wide transition-all duration-200 ${
                           activeFilter === filter
-                            ? "text-[#9A6F08]"
-                            : "text-[#777064] hover:text-[#B8860B]"
+                            ? "text-[#C77AFF]"
+                            : "text-gray-500 hover:text-[#9B59B6]"
                         }`}
                         onClick={() => setActiveFilter(filter)}
                       >
                         {filter}
-
                         {activeFilter === filter && (
-                          <span className="absolute left-3 right-3 bottom-0 h-[2px] rounded-full bg-gradient-to-r from-[#E9C961] via-[#C99A29] to-[#A97808]" />
+                          <span
+                            className={`absolute left-3 right-3 bottom-0 h-[2px] rounded-full ${purpleGradient}`}
+                          />
                         )}
                       </button>
                     ))}
                   </div>
 
                   {/* Search and Favorites */}
-                  <div className="flex justify-between items-center gap-4 px-5 py-4 border-b border-[#E9DFC4] bg-[#FFFDF9]">
-                    {/* Favorites */}
-                    <div
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg
-                     bg-[#FBF5E7]
-                     border border-[#E6D6A8]
-                     text-[#8A6514] text-sm font-semibold"
-                    >
+                  <div className="flex justify-between items-center gap-4 px-5 py-4 border-b border-[#2a1b3d] bg-[#12061C]">
+                    <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1C0F2B] border border-[#2a1b3d] text-[#C77AFF] text-sm font-semibold">
                       {favorites.length > 0 ? (
                         <>
-                          <FaStar className="text-[#C99A29]" />
+                          <FaStar className="text-[#9B59B6]" />
                           <span>{favorites.length}</span>
                         </>
                       ) : (
                         <>
-                          <FaRegStar className="text-[#9A907D]" />
-                          <span className="text-[#776F61]">0</span>
+                          <FaRegStar className="text-gray-500" />
+                          <span className="text-gray-500">0</span>
                         </>
                       )}
                     </div>
 
-                    {/* Search */}
                     <div className="relative flex-1 max-w-[650px]">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaSearch className="text-[#B8860B]" />
+                        <FaSearch className="text-[#9B59B6]" />
                       </div>
 
                       <input
                         type="text"
-                        className="block w-full pl-10 pr-4 py-2.5
-                       border border-[#E4D6B4]
-                       rounded-lg
-                       leading-5
-                       bg-white
-                       text-[#332B20]
-                       placeholder-[#AAA08D]
-                       focus:outline-none
-                       focus:border-[#C99A29]
-                       focus:ring-2
-                       focus:ring-[#D4AF37]/20
-                       shadow-[inset_0_1px_3px_rgba(124,91,19,0.05)]
-                       sm:text-sm
-                       transition-all"
+                        className="block w-full pl-10 pr-4 py-2.5 border border-[#2a1b3d] rounded-lg leading-5 bg-[#1C0F2B] text-white placeholder-gray-500 focus:outline-none focus:border-[#B45CFF]/60 focus:ring-2 focus:ring-[#B45CFF]/20 sm:text-sm transition-all"
                         placeholder="Search trade pair..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -1036,52 +1005,42 @@ function ChartSection({ investment }) {
                   </div>
 
                   {/* Table */}
-                  <div className="overflow-y-auto h-[calc(400px-0px)] scrollbar-thin scrollbar-thumb-[#D4AF37] scrollbar-track-[#F8F4EA]">
-                    <table className="min-w-full divide-y divide-[#ECE3D0]">
-                      {/* Table Header */}
-                      <thead className="bg-[#FCFAF5] sticky top-0 z-10">
+                  <div className="overflow-y-auto h-[calc(400px-0px)] scrollbar-thin scrollbar-thumb-[#9B59B6] scrollbar-track-[#12061C]">
+                    <table className="min-w-full divide-y divide-[#2a1b3d]">
+                      <thead className="bg-[#12061C] sticky top-0 z-10">
                         <tr>
                           <th
                             scope="col"
-                            className="px-6 py-3.5 text-left text-[11px] font-bold
-                           text-[#9A8D77] uppercase tracking-[0.08em]"
+                            className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]"
                           >
                             Name
                           </th>
-
                           <th
                             scope="col"
-                            className="px-6 py-3.5 text-left text-[11px] font-bold
-                           text-[#9A8D77] uppercase tracking-[0.08em]
-                           hidden md:table-cell"
+                            className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em] hidden md:table-cell"
                           >
                             24h change
                           </th>
-
                           <th
                             scope="col"
-                            className="px-6 py-3.5 text-left text-[11px] font-bold
-                           text-[#9A8D77] uppercase tracking-[0.08em]"
+                            className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]"
                           >
                             Profit 30 sec
                           </th>
-
                           <th
                             scope="col"
-                            className="px-6 py-3.5 text-left text-[11px] font-bold
-                           text-[#9A8D77] uppercase tracking-[0.08em]"
+                            className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]"
                           >
-                            1+ min
+                            1+ min{" "}
                           </th>
                         </tr>
                       </thead>
 
-                      {/* Table Body */}
-                      <tbody className="bg-white divide-y divide-[#F0E8D8]">
+                      <tbody className="bg-[#1C0F2B] divide-y divide-[#2a1b3d]">
                         {filteredAssets.map((asset, index) => (
                           <tr
                             key={asset.id}
-                            className="group hover:bg-gradient-to-r hover:from-[#FFFDF8] hover:to-[#FBF5E8] cursor-pointer transition-all duration-150"
+                            className="group hover:bg-[#2a1b3d]/50 cursor-pointer transition-all duration-150"
                             onClick={() => {
                               if (index === 0) {
                                 navigate("/SideNavbar");
@@ -1091,14 +1050,12 @@ function ChartSection({ investment }) {
                               }
                             }}
                           >
-                            {/* Pair */}
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
                                 <button
-                                  className="mr-3 text-[#A79C89] hover:text-[#C99A29] transition-colors"
+                                  className="mr-3 text-gray-500 hover:text-[#C77AFF] transition-colors"
                                   onClick={(e) => {
                                     e.stopPropagation();
-
                                     setFavorites((prev) =>
                                       prev.includes(asset.id)
                                         ? prev.filter((id) => id !== asset.id)
@@ -1112,7 +1069,6 @@ function ChartSection({ investment }) {
                                       alt=""
                                       className="h-5 w-5 overflow-hidden rounded-full object-cover"
                                     />
-
                                     <img
                                       src={asset.flag2}
                                       alt=""
@@ -1122,10 +1078,9 @@ function ChartSection({ investment }) {
                                 </button>
 
                                 <div className="flex items-center">
-                                  <span className="text-[#2F281D] font-semibold text-sm">
+                                  <span className="text-white font-semibold text-sm">
                                     {asset.pair}
-
-                                    <span className="text-[#988E7D] ml-1 font-normal">
+                                    <span className="text-gray-500 ml-1 font-normal">
                                       ({asset.type})
                                     </span>
                                   </span>
@@ -1133,13 +1088,12 @@ function ChartSection({ investment }) {
                               </div>
                             </td>
 
-                            {/* 24h Change */}
                             <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                               <div
                                 className={`flex items-center font-semibold ${
                                   asset.change >= 0
-                                    ? "text-[#149B58]"
-                                    : "text-[#E0574D]"
+                                    ? "text-[#00E676]"
+                                    : "text-[#E74C3C]"
                                 }`}
                               >
                                 {asset.change >= 0 ? (
@@ -1147,37 +1101,18 @@ function ChartSection({ investment }) {
                                 ) : (
                                   <FaArrowDown className="mr-1 text-xs" />
                                 )}
-
                                 <span>{Math.abs(asset.change)}%</span>
                               </div>
                             </td>
 
-                            {/* Profit 30 sec */}
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className="inline-flex items-center px-2.5 py-1
-                               rounded-full
-                               bg-[#FBF3DD]
-                               border border-[#E7D28F]
-                               text-[#A87808]
-                               text-xs
-                               font-bold"
-                              >
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#9B59B6]/15 border border-[#9B59B6]/30 text-[#C77AFF] text-xs font-bold">
                                 {asset.payout1}%
                               </span>
                             </td>
 
-                            {/* 1+ min */}
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className="inline-flex items-center px-2.5 py-1
-                               rounded-full
-                               bg-[#FBF3DD]
-                               border border-[#E7D28F]
-                               text-[#A87808]
-                               text-xs
-                               font-bold"
-                              >
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-[#9B59B6]/15 border border-[#9B59B6]/30 text-[#C77AFF] text-xs font-bold">
                                 {asset.payout2}%
                               </span>
                             </td>
@@ -1191,63 +1126,31 @@ function ChartSection({ investment }) {
             )}
           </div>
 
-          <div className="bg-[#FBFAF7] rounded py-1 px-2 flex items-center justify-between">
+          <div className="bg-[#1C0F2B] rounded py-1 px-2 flex items-center justify-between border border-[#2a1b3d]">
             <div
               onClick={() => SetShowButton((prev) => !prev)}
-              className="
-    flex items-center justify-between
-    w-full
-    h-[64px]
-    px-3
-    cursor-pointer
-    rounded-xl
-    bg-gradient-to-r from-white via-[#FFFDF9] to-[#FBF6E9]
-    border border-[#DCC27A]
-    shadow-[0_3px_12px_rgba(145,108,24,0.12)]
-    hover:shadow-[0_4px_16px_rgba(145,108,24,0.18)]
-    hover:border-[#C9A33A]
-    transition-all duration-200
-  "
+              className="flex items-center justify-between w-full h-[64px] px-3 cursor-pointer rounded-xl bg-[#1C0F2B] border border-[#9B59B6]/40 shadow-[0_3px_12px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_16px_rgba(155,89,182,0.3)] hover:border-[#B45CFF]/60 transition-all duration-200"
             >
               {/* LEFT SIDE */}
               <div className="flex items-center min-w-0">
-                {/* Flags */}
                 <div className="relative flex items-center w-[42px] h-[30px] mr-3">
                   <img
                     src={flag1}
                     alt=""
-                    className="
-          absolute left-0
-          w-7 h-7
-          rounded-full
-          object-cover
-          border-2 border-white
-          shadow-[0_2px_5px_rgba(0,0,0,0.12)]
-          z-10
-        "
+                    className="absolute left-0 w-7 h-7 rounded-full object-cover border-2 border-[#1C0F2B] shadow-[0_2px_5px_rgba(0,0,0,0.4)] z-10"
                   />
-
                   <img
                     src={flag2}
                     alt=""
-                    className="
-          absolute left-[15px]
-          w-7 h-7
-          rounded-full
-          object-cover
-          border-2 border-white
-          shadow-[0_2px_5px_rgba(0,0,0,0.12)]
-        "
+                    className="absolute left-[15px] w-7 h-7 rounded-full object-cover border-2 border-[#1C0F2B] shadow-[0_2px_5px_rgba(0,0,0,0.4)]"
                   />
                 </div>
 
-                {/* Pair Name */}
                 <div className="flex flex-col justify-center leading-none">
-                  <span className="text-[18px] font-bold text-[#2D281F] tracking-tight">
+                  <span className="text-[18px] font-bold text-white tracking-tight">
                     USD/JPY
                   </span>
-
-                  <span className="mt-1 text-[13px] font-medium text-[#8F887A]">
+                  <span className="mt-1 text-[13px] font-medium text-gray-400">
                     OTC
                   </span>
                 </div>
@@ -1255,38 +1158,14 @@ function ChartSection({ investment }) {
 
               {/* RIGHT SIDE */}
               <div className="flex items-center gap-3">
-                {/* 93% */}
                 <div
-                  className=" -mt-3 m-2
-        min-w-[47px]
-        h-[29px]
-        px-3
-        flex items-center justify-center
-        rounded-[10px]
-        bg-gradient-to-b
-        from-[#E8CB68]
-        via-[#C99A29]
-        to-[#A97708]
-        text-white
-        text-[13px]
-        font-bold
-        shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_3px_7px_rgba(169,120,8,0.22)]
-      "
+                  className={`-mt-3 m-2 min-w-[47px] h-[29px] px-3 flex items-center justify-center rounded-[10px] ${purpleGradient} text-white text-[13px] font-bold`}
                 >
                   93%
                 </div>
 
-                {/* Dropdown */}
-                <div
-                  className="
-        w-8 h-8
-        flex items-center justify-center
-        rounded-full
-        bg-[#FBF5E6]
-        border border-[#E5D19A]
-      "
-                >
-                  <FaCaretDown className="text-[#A97808] text-[18px]" />
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-[#12061C] border border-[#2a1b3d]">
+                  <FaCaretDown className="text-[#C77AFF] text-[18px]" />
                 </div>
               </div>
             </div>
@@ -1299,10 +1178,10 @@ function ChartSection({ investment }) {
                       {navbarOpen.slice(0, index).map((item, idx) => (
                         <div
                           key={idx}
-                          className="relative bg-[#FBFAF7] rounded-md"
+                          className="relative bg-[#1C0F2B] rounded-md border border-[#2a1b3d]"
                         >
                           <div className="flex">
-                            <div className="text-[#333333] px-7 flex flex-col p-1 items-start">
+                            <div className="text-white px-7 flex flex-col p-1 items-start">
                               <div>{item.pair}</div>
                               <div>{item.payout1}%</div>
                             </div>
@@ -1317,7 +1196,7 @@ function ChartSection({ investment }) {
                             }}
                             className="p-1 rounded-full absolute top-0 right-0"
                           >
-                            <FaWindowClose className="h-3 w-3 text-[#333333]" />
+                            <FaWindowClose className="h-3 w-3 text-[#C77AFF]" />
                           </button>
                         </div>
                       ))}
@@ -1329,7 +1208,7 @@ function ChartSection({ investment }) {
           </div>
         </div>
 
-        <div className="time-display text-xs text-gray-300 absolute top-4 right-4">
+        <div className="time-display text-xs text-gray-400 absolute top-4 right-4">
           {new Date().toLocaleTimeString()} UTC
         </div>
 
@@ -1337,7 +1216,7 @@ function ChartSection({ investment }) {
         <div className="flex justify-center items-center gap-4 mb-2 absolute top-10 right-4 z-10 opacity-100">
           <button
             onClick={handleMoveLeft}
-            className="bg-gradient-to-b from-[#E9C961] via-[#C99A29] to-[#A97808] hover:from-[#F0D678] hover:via-[#D3A934] hover:to-[#B9850A] text-white rounded-full p-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_3px_8px_rgba(169,120,8,0.25)] transition-all"
+            className={`${purpleGradient} text-white rounded-full p-1 transition-all`}
             title="View older candles"
           >
             <ChevronLeft className="md:h-5 md:w-5 w-4 h-4" />
@@ -1345,7 +1224,7 @@ function ChartSection({ investment }) {
 
           <button
             onClick={handleMoveRight}
-            className="bg-gradient-to-b from-[#E9C961] via-[#C99A29] to-[#A97808] hover:from-[#F0D678] hover:via-[#D3A934] hover:to-[#B9850A] text-white rounded-full p-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.45),0_3px_8px_rgba(169,120,8,0.25)] transition-all"
+            className={`${purpleGradient} text-white rounded-full p-1 transition-all`}
             title="View newer candles"
           >
             <ChevronRight className="md:h-5 md:w-5 w-4 h-4" />
@@ -1368,18 +1247,21 @@ function ChartSection({ investment }) {
           />
         </div>
       </div>
+
       {comming && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#FBFAF7] p-6 rounded-md text-center shadow-lg max-w-lg w-full">
-            <h2 className="text-xl font-semibold mb-2">Coming Soon!</h2>
-            <p className="text-gray-300">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <div className="bg-[#1C0F2B] p-6 rounded-md text-center shadow-[0_8px_32px_rgba(0,0,0,0.6)] max-w-lg w-full border border-[#2a1b3d]">
+            <h2 className="text-xl font-semibold mb-2 text-white">
+              Coming Soon!
+            </h2>
+            <p className="text-gray-400">
               This chart is not available at the moment. For technical reasons,
               we cannot show the chart of this pair, please choose another
               trading pair.
             </p>
             <button
               onClick={() => setComming(false)}
-              className="mt-4 px-4 py-2 bg-green-500 text-[#333333] rounded "
+              className={`mt-4 px-4 py-2 ${purpleGradient} text-white rounded`}
             >
               OK
             </button>

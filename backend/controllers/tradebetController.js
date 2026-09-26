@@ -168,8 +168,8 @@ exports.placeBet = async (req, res) => {
           message: "All fields (period, amount, bet, tradeType) are required",
         });
     const user = await User.findOneAndUpdate(
-      { userId: id, balance: { $gte: a } },
-      { $inc: { balance: -a } },
+      { userId: id, credit: { $gte: a } },
+      { $inc: { credit: -a } },
       { new: true },
     );
     console.log(user)
@@ -178,7 +178,7 @@ exports.placeBet = async (req, res) => {
         return res.status(400).json({ message: "User Not Found" });
       return res
         .status(400)
-        .json({ success: false, message: "Insufficient balance" });
+        .json({ success: false, message: "Insufficient credit" });
     }
     const orderId =
       String(Date.now()) + String(Math.floor(Math.random() * 1000));
@@ -200,7 +200,7 @@ exports.placeBet = async (req, res) => {
           trade: b,
         });
     } catch (e) {
-      await User.updateOne({ userId: id }, { $inc: { balance: a } });
+      await User.updateOne({ userId: id }, { $inc: { credit: a } });
       throw e;
     }
   } catch (e) {
@@ -229,7 +229,7 @@ exports.checkwhichUserIsWinner = async (req = null, res = null) => {
         );
         await User.updateOne(
           { userId: b.userId },
-          { $inc: { balance: getAmount } },
+          { $inc: { credit: getAmount } },
         );
       } else
         await Bet.updateOne(

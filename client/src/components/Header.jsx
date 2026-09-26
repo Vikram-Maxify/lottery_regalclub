@@ -12,12 +12,10 @@ import {
   Key,
   LogIn,
   LogOut,
-  Menu,
   MessageCircle,
   PlusCircle,
   PowerIcon,
   Sparkles,
-  Star,
   User,
   UserPlus,
   Wallet,
@@ -192,6 +190,116 @@ const Header = ({ children }) => {
     return getUserDisplayName().charAt(0).toUpperCase();
   };
 
+  // Wallet balance — same balance section used in the Navbar
+  const walletcredit = user?.credit;
+
+  const getCurrencySymbol = () => {
+    const country = String(user?.country || "")
+      .trim()
+      .toLowerCase();
+
+    const countryAliases = {
+      in: "IN",
+      india: "IN",
+      au: "AU",
+      australia: "AU",
+      pk: "PK",
+      pakistan: "PK",
+      bd: "BD",
+      bangladesh: "BD",
+      np: "NP",
+      nepal: "NP",
+      ae: "AE",
+      uae: "AE",
+      dubai: "AE",
+      "united arab emirates": "AE",
+      ca: "CA",
+      canada: "CA",
+      us: "US",
+      usa: "US",
+      "united states": "US",
+      gb: "GB",
+      uk: "GB",
+      "united kingdom": "GB",
+      nz: "NZ",
+      "new zealand": "NZ",
+      sg: "SG",
+      singapore: "SG",
+      my: "MY",
+      malaysia: "MY",
+      ph: "PH",
+      philippines: "PH",
+      jp: "JP",
+      japan: "JP",
+      cn: "CN",
+      china: "CN",
+      th: "TH",
+      thailand: "TH",
+      id: "ID",
+      indonesia: "ID",
+      vn: "VN",
+      vietnam: "VN",
+      tr: "TR",
+      turkey: "TR",
+      sa: "SA",
+      "saudi arabia": "SA",
+      za: "ZA",
+      "south africa": "ZA",
+      ng: "NG",
+      nigeria: "NG",
+      ke: "KE",
+      kenya: "KE",
+      br: "BR",
+      brazil: "BR",
+      mx: "MX",
+      mexico: "MX",
+      de: "DE",
+      germany: "DE",
+      fr: "FR",
+      france: "FR",
+      it: "IT",
+      italy: "IT",
+      es: "ES",
+      spain: "ES",
+    };
+
+    const countryCode = countryAliases[country] || country.toUpperCase();
+
+    const currencyMap = {
+      IN: "₹",
+      NP: "रू",
+      AU: "A$",
+      PK: "₨",
+      BD: "৳",
+      AE: "د.إ",
+      CA: "C$",
+      US: "$",
+      GB: "£",
+      NZ: "NZ$",
+      SG: "S$",
+      MY: "RM",
+      PH: "₱",
+      JP: "¥",
+      CN: "¥",
+      TH: "฿",
+      ID: "Rp",
+      VN: "₫",
+      TR: "₺",
+      SA: "﷼",
+      ZA: "R",
+      NG: "₦",
+      KE: "KSh",
+      BR: "R$",
+      MX: "MX$",
+      DE: "€",
+      FR: "€",
+      IT: "€",
+      ES: "€",
+    };
+
+    return currencyMap[countryCode] || "₹";
+  };
+
   const getAvatar = () => {
     const name = getUserDisplayName();
     return (
@@ -202,8 +310,8 @@ const Header = ({ children }) => {
 
   const WinzoxLogo = ({ className = "h-48" }) => (
     <img
-      src="https://i.ibb.co/bRDCrgMB/4f0fb13d-8dd5-44fd-9bfa-d1e47e94d5a7.png"
-      alt="WINZOX"
+      src="https://i.ibb.co/fdGFXBrr/logo.png"
+      alt="RegalClub"
       className={`${className} object-contain w-auto`}
     />
   );
@@ -217,18 +325,6 @@ const Header = ({ children }) => {
           <div className="h-full flex items-center px-4 sm:px-6">
             {/* Left - Menu & Logo */}
             <div className="flex items-center gap-2 md:gap-4">
-              <button
-                ref={menuButtonRef}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsSidebarOpen(!isSidebarOpen);
-                }}
-                className="md:hidden text-gray-300 hover:text-[#C77AFF] transition-all duration-500 p-2 -ml-2 hover:bg-[#1C0F2B] rounded-2xl transform-gpu hover:scale-110"
-                aria-label="Toggle menu"
-              >
-                <Menu size={22} />
-              </button>
-
               <Link
                 to="/"
                 className="flex items-center transform-gpu hover:scale-105 transition-all duration-500"
@@ -241,7 +337,29 @@ const Header = ({ children }) => {
 
             {/* Right - Auth Buttons */}
             <div className="flex items-center gap-2">
-              {isAuthenticated ? (
+              {user && user?.credit !== undefined && user?.credit !== null && (
+                <Link
+                  to="/wallet"
+                  className="flex items-center gap-1 rounded-xl border border-[#9B59B6]/40 bg-[#1C0F2B] px-2 py-1.5 sm:gap-1.5 sm:px-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.4)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(155,89,182,0.2)] hover:border-[#9B59B6]/70"
+                >
+                  <Wallet
+                    size={17}
+                    strokeWidth={2.2}
+                    className="text-[#9B59B6]"
+                  />
+
+                  <span className="text-xs font-bold text-gray-200 sm:text-sm">
+                    {getCurrencySymbol()}
+                    {Number(walletcredit || 0).toFixed(2)}
+                  </span>
+
+                  <span className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)] text-white transition-transform duration-300 hover:scale-110">
+                    <PlusCircle size={15} strokeWidth={3} />
+                  </span>
+                </Link>
+              )}
+
+              {user ? (
                 <>
                   <Link
                     to="/account"
@@ -284,7 +402,7 @@ const Header = ({ children }) => {
             <div className="grid grid-cols-5 h-full w-full">
               {/* Home */}
               <Link
-                to="/"
+                to="https://regalclub.live/"
                 className={`flex flex-col items-center justify-center text-[10px] transition-all duration-500 relative ${
                   location.pathname === "/"
                     ? "text-[#C77AFF]"
@@ -297,7 +415,7 @@ const Header = ({ children }) => {
                   className={`transition-all duration-500 ${location.pathname === "/" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Home</span>
-                {location.pathname === "/" && (
+                {location.pathname === "https://regalclub.live/" && (
                   <div
                     className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
                   ></div>
@@ -389,9 +507,6 @@ const Header = ({ children }) => {
                       Promo
                     </span>
                   </div>
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-[#F1C40F] rounded-full flex items-center justify-center shadow-lg animate-pulse-slow">
-                  <Star size={10} className="text-[#0B0410]" fill="#0B0410" />
                 </div>
               </div>
             </Link>

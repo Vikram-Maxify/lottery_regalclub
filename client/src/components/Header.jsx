@@ -101,6 +101,8 @@ const Header = ({ children }) => {
     },
   ];
 
+  //lottery//
+
   const accountMenuItems = [
     { icon: User, label: "Profile", path: "/profile", color: "text-blue-400" },
     {

@@ -45,10 +45,7 @@ export const Register = createAsyncThunk(
   "user/signup",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await api.post(
-        "/signup",
-        formData
-      );
+      const response = await api.post("/signup", formData);
 
       const data = response.data;
 
@@ -114,9 +111,7 @@ export const getadmin = createAsyncThunk(
   "user/adminget",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get(
-        "/admin/adminget"
-      );
+      const response = await api.get("/admin/adminget");
 
       const data = response.data;
 
@@ -153,21 +148,13 @@ export const ForgetPass = createAsyncThunk(
 
       const data = response.data;
 
-      console.log(
-        "FORGOT PASSWORD RESPONSE:",
-        data
-      );
+      console.log("FORGOT PASSWORD RESPONSE:", data);
 
       // If API returns a new JWT
       if (data.token) {
-        localStorage.setItem(
-          "token",
-          data.token
-        );
+        localStorage.setItem("token", data.token);
 
-        console.log(
-          "FORGOT PASSWORD TOKEN SAVED"
-        );
+        console.log("FORGOT PASSWORD TOKEN SAVED");
       }
 
       return data;
@@ -194,10 +181,7 @@ export const SendOtp = createAsyncThunk(
   "user/sendotp",
   async (email, { rejectWithValue }) => {
     try {
-      const response = await api.post(
-        "/sendotp",
-        email
-      );
+      const response = await api.post("/sendotp", email);
 
       const data = response.data;
 
@@ -332,6 +316,10 @@ const initialState = {
   loading: false,
   error: null,
   singleadmin: null,
+
+  // Authentication state
+  isAuthenticated: false,
+
   useraddress: null,
   userDetail: null,
   admininfo: null,
@@ -356,6 +344,7 @@ const userSlice = createSlice({
       state.user = null;
       state.userInfo = null;
       state.userDetail = null;
+      state.isAuthenticated = false;
     },
   },
 
@@ -385,6 +374,9 @@ const userSlice = createSlice({
           state.message =
             action.payload?.message || null;
 
+          // Login successful
+          state.isAuthenticated = true;
+
           console.log(
             "LOGIN USER:",
             state.userInfo
@@ -397,6 +389,9 @@ const userSlice = createSlice({
         (state, action) => {
           state.loading = false;
           state.error = action.payload;
+
+          // Login failed
+          state.isAuthenticated = false;
         }
       )
 
@@ -423,6 +418,9 @@ const userSlice = createSlice({
           state.message =
             action.payload?.message || null;
 
+          // Registration successful
+          state.isAuthenticated = true;
+
           console.log(
             "REGISTER USER:",
             state.userInfo
@@ -435,6 +433,8 @@ const userSlice = createSlice({
         (state, action) => {
           state.loading = false;
           state.error = action.payload;
+
+          state.isAuthenticated = false;
         }
       )
 
@@ -461,6 +461,14 @@ const userSlice = createSlice({
             action.payload?.userInfo ||
             action.payload?.data ||
             null;
+
+          // GET USER successful
+          state.isAuthenticated = true;
+
+          console.log(
+            "GET USER SUCCESS:",
+            state.userInfo
+          );
         }
       )
 
@@ -469,6 +477,12 @@ const userSlice = createSlice({
         (state, action) => {
           state.loading = false;
           state.error = action.payload;
+
+          // User API failed
+          state.isAuthenticated = false;
+
+          state.user = null;
+          state.userInfo = null;
         }
       )
 
@@ -529,34 +543,60 @@ const userSlice = createSlice({
       // ======================================================
 
       .addCase(
+        Logout.pending,
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+
+      .addCase(
         Logout.fulfilled,
         (state) => {
+          state.loading = false;
+
           state.user = null;
           state.userInfo = null;
           state.userDetail = null;
           state.useraddress = null;
           state.message = null;
+
+          // Logout successful
+          state.isAuthenticated = false;
         }
       )
 
       .addCase(
         Logout.rejected,
         (state, action) => {
+          state.loading = false;
+
           state.user = null;
           state.userInfo = null;
+          state.userDetail = null;
+          state.useraddress = null;
+
           state.error = action.payload;
+
+          // Even if backend logout fails,
+          // frontend authentication should be cleared
+          state.isAuthenticated = false;
         }
       );
   },
 });
 
 // ============================================================
-// EXPORT
+// EXPORT ACTIONS
 // ============================================================
 
 export const {
   clearError,
   clearUser,
 } = userSlice.actions;
+
+// ============================================================
+// EXPORT REDUCER
+// ============================================================
 
 export default userSlice.reducer;

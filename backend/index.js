@@ -42,10 +42,10 @@ app.use(
       "http://localhost:3000",
 
       // Main domain
-      "https://lotterry.marinclub.site",
+      "https://regalclub.live",
 
       // Trade subdomain
-      "https://lotterry.trade.marinclub.site",
+      "https://trading.regalclub.live",
     ],
     credentials: true,
     methods: [

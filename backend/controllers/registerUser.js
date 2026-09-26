@@ -58,11 +58,11 @@ exports.registerUser = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
 
       // Share auth cookie between:
-      // lotterry.marinclub.site
-      // lotterry.trade.marinclub.site
+      // lotterry.regalclub.live
+      // lotterry.trade.regalclub.live
       domain:
         process.env.NODE_ENV === "production"
-          ? ".marinclub.site"
+          ? ".regalclub.live"
           : undefined,
 
       // HTTPS production cross-subdomain requests
@@ -113,11 +113,11 @@ exports.loginUser = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
 
       // Share auth cookie between:
-      // lotterry.marinclub.site
-      // lotterry.trade.marinclub.site
+      // lotterry.regalclub.live
+      // lotterry.trade.regalclub.live
       domain:
         process.env.NODE_ENV === "production"
-          ? ".marinclub.site"
+          ? ".regalclub.live"
           : undefined,
 
       // HTTPS production cross-subdomain requests
@@ -593,7 +593,7 @@ exports.logout = async (req, res) => {
 
       domain:
         process.env.NODE_ENV === "production"
-          ? ".marinclub.site"
+          ? ".regalclub.live"
           : undefined,
 
       sameSite:

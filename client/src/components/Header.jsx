@@ -3,7 +3,6 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   ChevronRight,
-  Circle,
   ClipboardList,
   Dice5,
   Gift,
@@ -11,8 +10,8 @@ import {
   Home as HomeIcon,
   Key,
   LogIn,
-  LogOut,
   MessageCircle,
+  Plus,
   PlusCircle,
   PowerIcon,
   Sparkles,
@@ -29,6 +28,18 @@ const Header = ({ children }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const { isAuthenticated, user, loading } = useSelector((state) => state.auth);
+
+  // ======================================================
+  // ✅ Handle userInfo array or object from API
+  // ======================================================
+  const userData = (() => {
+    if (!user) return null;
+    if (Array.isArray(user)) return user[0];
+    if (Array.isArray(user?.userInfo)) return user.userInfo[0];
+    if (user?.userInfo && typeof user.userInfo === "object")
+      return user.userInfo;
+    return user;
+  })();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
@@ -101,8 +112,6 @@ const Header = ({ children }) => {
     },
   ];
 
-  //lottery//
-
   const accountMenuItems = [
     { icon: User, label: "Profile", path: "/profile", color: "text-blue-400" },
     {
@@ -161,42 +170,49 @@ const Header = ({ children }) => {
     },
   ];
 
-  const MAIN_LOGIN_URL = "https://regalclub.live/login";
-
-  const handleLogout = async () => {
-    try {
-      await dispatch(logout()).unwrap();
-      setIsSidebarOpen(false);
-      window.location.replace(MAIN_LOGIN_URL);
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
-
   const isActiveRoute = (path) => {
     if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
+  // ======================================================
+  // ✅ User data helpers — API response ke according
+  // ======================================================
+
   const getUserDisplayName = () => {
-    if (!user) return "User";
-    return user.name || user.username || "User";
+    if (!userData) return "User";
+    return userData?.name || userData?.username || "User";
   };
 
   const getUserSubtitle = () => {
-    if (!user) return "";
-    return user.email || user.mobile || "";
+    if (!userData) return "";
+    return userData?.email || userData?.mobile || "";
+  };
+
+  const getUserUID = () => {
+    if (!userData) return "";
+    return userData?.userId || userData?._id || "";
+  };
+
+  const getUserMobile = () => {
+    if (!userData) return "";
+    return userData?.mobile || "";
   };
 
   const getInitial = () => {
     return getUserDisplayName().charAt(0).toUpperCase();
   };
 
-  // Wallet balance — same balance section used in the Navbar
-  const walletcredit = user?.credit;
+  // ======================================================
+  // ✅ Wallet balance
+  // ======================================================
+  const walletcredit = userData?.credit;
 
+  // ======================================================
+  // ✅ Currency Symbol by country code
+  // ======================================================
   const getCurrencySymbol = () => {
-    const country = String(user?.country || "")
+    const country = String(userData?.country || "")
       .trim()
       .toLowerCase();
 
@@ -302,10 +318,13 @@ const Header = ({ children }) => {
     return currencyMap[countryCode] || "₹";
   };
 
+  // ======================================================
+  // ✅ Avatar
+  // ======================================================
   const getAvatar = () => {
     const name = getUserDisplayName();
     return (
-      user?.profilePic ||
+      userData?.profilePic ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=B45CFF&color=fff&size=128`
     );
   };
@@ -339,32 +358,37 @@ const Header = ({ children }) => {
 
             {/* Right - Auth Buttons */}
             <div className="flex items-center gap-2">
-              {user && user?.credit !== undefined && user?.credit !== null && (
-                <Link
-                  to="/wallet"
-                  className="flex items-center gap-1 rounded-xl border border-[#9B59B6]/40 bg-[#1C0F2B] px-2 py-1.5 sm:gap-1.5 sm:px-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.4)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(155,89,182,0.2)] hover:border-[#9B59B6]/70"
-                >
-                  <Wallet
-                    size={17}
-                    strokeWidth={2.2}
-                    className="text-[#9B59B6]"
-                  />
-
-                  <span className="text-xs font-bold text-gray-200 sm:text-sm">
-                    {getCurrencySymbol()}
-                    {Number(walletcredit || 0).toFixed(2)}
-                  </span>
-
-                  <span className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)] text-white transition-transform duration-300 hover:scale-110">
-                    <PlusCircle size={15} strokeWidth={3} />
-                  </span>
-                </Link>
-              )}
-
-              {user ? (
-                <>
+              {/* Wallet Balance */}
+              {userData &&
+                userData?.credit !== undefined &&
+                userData?.credit !== null && (
                   <Link
-                    to="/account"
+                    to="/wallet"
+                    className="flex items-center gap-1 rounded-xl border border-[#9B59B6]/40 bg-[#1C0F2B] px-2 py-1.5 sm:gap-1.5 sm:px-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.4)] transition-all duration-300 hover:shadow-[0_4px_12px_rgba(155,89,182,0.2)] hover:border-[#9B59B6]/70"
+                  >
+                    <Wallet
+                      size={17}
+                      strokeWidth={2.2}
+                      className="text-[#9B59B6]"
+                    />
+
+                    <span className="text-xs font-bold text-gray-200 sm:text-sm">
+                      {getCurrencySymbol()}
+                      {Number(walletcredit || 0).toFixed(2)}
+                    </span>
+
+                    <span className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)] text-white transition-transform duration-300 hover:scale-110">
+                      <Plus size={15} strokeWidth={3} />
+                    </span>
+                  </Link>
+                )}
+
+              {/* User Avatar + Name */}
+              {userData ? (
+                <>
+                  {/* Desktop */}
+                  <Link
+                    to="https://regalclub.live/account"
                     className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl text-white hover:bg-[#1C0F2B] transition-all duration-500"
                   >
                     <img
@@ -375,11 +399,12 @@ const Header = ({ children }) => {
                         e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getUserDisplayName())}&background=B45CFF&color=fff&size=128`;
                       }}
                     />
-                    <span className="text-sm font-bold">
+                    <span className="text-sm font-bold capitalize">
                       {getUserDisplayName()}
                     </span>
                   </Link>
 
+                  {/* Mobile */}
                   <Link to="/account" className="md:hidden flex items-center">
                     <img
                       src={getAvatar()}
@@ -417,11 +442,6 @@ const Header = ({ children }) => {
                   className={`transition-all duration-500 ${location.pathname === "/" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Home</span>
-                {location.pathname === "https://regalclub.live/" && (
-                  <div
-                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
-                  ></div>
-                )}
               </Link>
 
               {/* Activity */}
@@ -439,11 +459,6 @@ const Header = ({ children }) => {
                   className={`transition-all duration-500 ${location.pathname === "/activity" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Activity</span>
-                {location.pathname === "/activity" && (
-                  <div
-                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
-                  ></div>
-                )}
               </Link>
 
               <div></div>
@@ -463,11 +478,6 @@ const Header = ({ children }) => {
                   className={`transition-all duration-500 ${location.pathname === "/wallet" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Wallet</span>
-                {location.pathname === "/wallet" && (
-                  <div
-                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
-                  ></div>
-                )}
               </Link>
 
               {/* Account */}
@@ -485,11 +495,6 @@ const Header = ({ children }) => {
                   className={`transition-all duration-500 ${location.pathname === "/account" ? "text-[#C77AFF]" : "text-gray-500"}`}
                 />
                 <span className="mt-0.5 font-bold text-[10px]">Account</span>
-                {location.pathname === "/account" && (
-                  <div
-                    className={`absolute top-[3.5rem] w-8 h-1 rounded-full ${purpleGradient} animate-pulse-slow`}
-                  ></div>
-                )}
               </Link>
             </div>
 
@@ -561,7 +566,7 @@ const Header = ({ children }) => {
             </div>
 
             {/* User Info */}
-            {isAuthenticated && user && (
+            {userData && (
               <div className="px-4 py-4 border-b border-[#2a1b3d] bg-[#12061C]">
                 <Link
                   to="https://regalclub.live/account"
@@ -577,7 +582,7 @@ const Header = ({ children }) => {
                     }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-white group-hover:text-[#C77AFF] transition-colors">
+                    <p className="font-bold text-white capitalize group-hover:text-[#C77AFF] transition-colors">
                       {getUserDisplayName()}
                     </p>
                     <p className="text-xs text-gray-400 truncate">
@@ -626,25 +631,9 @@ const Header = ({ children }) => {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="absolute bottom-0 left-0 w-full border-t border-[#2a1b3d] p-4 bg-[#1C0F2B]">
-              {isAuthenticated ? (
-                <button
-                  onClick={handleLogout}
-                  disabled={loading}
-                  className="flex items-center gap-3 rounded-2xl px-4 py-3.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 w-full transition-all duration-500 disabled:opacity-50 transform-gpu hover:scale-105"
-                >
-                  <LogOut size={20} />
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                      <Circle className="animate-spin" size={16} />
-                      Logging out...
-                    </span>
-                  ) : (
-                    "Logout"
-                  )}
-                </button>
-              ) : (
+            {/* Footer — sirf Login/Register jab user login na ho */}
+            {!userData && (
+              <div className="absolute bottom-0 left-0 w-full border-t border-[#2a1b3d] p-4 bg-[#1C0F2B]">
                 <div className="space-y-2.5">
                   <Link
                     to="https://regalclub.live/login"
@@ -663,8 +652,8 @@ const Header = ({ children }) => {
                     Register Now
                   </Link>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

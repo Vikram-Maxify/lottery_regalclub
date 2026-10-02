@@ -8,11 +8,11 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { FaCaretDown } from "react-icons/fa6";
-import { FiDollarSign } from "react-icons/fi";
 import { MdWorkHistory } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+
 import flag3 from "../assets/universalImage/Bangladesh-512.webp";
 import flag4 from "../assets/universalImage/brazil.webp";
 import flag5 from "../assets/universalImage/can.webp";
@@ -20,6 +20,7 @@ import flag2 from "../assets/universalImage/circle-flag-of-japan-free-png.webp";
 import flag1 from "../assets/universalImage/circle-flag-of-usa-free-png.webp";
 import flag6 from "../assets/universalImage/col.webp";
 import flag7 from "../assets/universalImage/turky.webp";
+
 import ChartSection from "../components/ChartSection";
 import { getUser } from "../Redux/Reducer/authReducer";
 import {
@@ -38,7 +39,10 @@ const TradeChart = () => {
   const { period, bet, traderhistory, pendingResult } = useSelector(
     (state) => state.bet,
   );
+
+  // Investment can now temporarily be an empty string
   const [investment, setInvestment] = useState(70);
+
   const [activeTab, setActiveTab] = useState("trades");
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -52,6 +56,7 @@ const TradeChart = () => {
 
   // 30 sec
   const [seconds, setSeconds] = useState(30);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -101,6 +106,7 @@ const TradeChart = () => {
   useEffect(() => {
     dispatch(betHistory());
   }, [dispatch]);
+
   useEffect(() => {
     dispatch(pendingHistory());
   }, [dispatch]);
@@ -130,9 +136,11 @@ const TradeChart = () => {
 
   useEffect(() => {
     if (seconds === 0) return;
+
     const intervalId = setInterval(() => {
       setSeconds((prev) => prev - 1);
     }, 1000);
+
     return () => clearInterval(intervalId);
   }, [seconds]);
 
@@ -141,6 +149,7 @@ const TradeChart = () => {
       const timeoutId = setTimeout(() => {
         setSeconds(30);
       }, 1000);
+
       return () => clearTimeout(timeoutId);
     }
   }, [seconds]);
@@ -149,14 +158,13 @@ const TradeChart = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
+
     handleResize();
+
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  const handleInvestmentChange = (amount) => {
-    setInvestment((prev) => Math.max(0, prev + amount));
-  };
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -164,40 +172,57 @@ const TradeChart = () => {
 
   const [popup, setPopup] = useState(false);
 
+  // Safe numeric value for calculations/API
+  const numericInvestment = Number(investment) || 0;
+
   const handleUp = () => {
+    if (numericInvestment <= 0) {
+      toast.error("Please enter a valid investment amount");
+      return;
+    }
+
     dispatch(
       placebet({
         tradeType: "Crypto",
-        amount: investment,
+        amount: numericInvestment,
         period: period,
         bet: "up",
       }),
     ).then((res) => {
-      if (res.payload.data.success) {
+      if (res.payload?.data?.success) {
         toast.success(res.payload.data.message);
         dispatch(getUser());
         dispatch(betHistory());
       } else {
-        toast.error("Insufficient balance");
+        toast.error(res.payload?.data?.message || "Insufficient balance");
       }
     });
   };
 
   const handleDown = () => {
+    if (numericInvestment <= 0) {
+      toast.error("Please enter a valid investment amount");
+      return;
+    }
+
     dispatch(
       placebet({
         tradeType: "Crypto",
-        amount: investment,
+        amount: numericInvestment,
         period: period,
         bet: "down",
       }),
     ).then((res) => {
-      if (res.payload.data.success) {
+      if (res.payload?.data?.success) {
         toast.success(res.payload.data.message);
         dispatch(getUser());
         dispatch(betHistory());
       } else {
-        toast.error(res.payload.message);
+        toast.error(
+          res.payload?.data?.message ||
+            res.payload?.message ||
+            "Insufficient balance",
+        );
       }
     });
   };
@@ -210,19 +235,10 @@ const TradeChart = () => {
     const timer = setTimeout(() => {
       setPopup(false);
     }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
-  const getStatusStyle = (status) => {
-    switch (status) {
-      case 0:
-        return "bg-[#F1C40F]/20 text-[#F1C40F]";
-      case 1:
-        return "bg-[#00E676]/20 text-[#00E676]";
-      default:
-        return "bg-red-500/20 text-red-400";
-    }
-  };
   const [topPopupOpen, setTopPopupOpen] = useState(false);
   const [activeFilter, setActiveFilter] = useState("CURRENCIES");
 
@@ -306,17 +322,17 @@ const TradeChart = () => {
     >
       <div
         className={`
-    transition-all duration-500 ease-in-out
-    overflow-hidden
-    lg:block hidden
-    ${topPopupOpen ? "w-[550px] opacity-100" : "w-0 opacity-0"}
-  `}
+          transition-all duration-500 ease-in-out
+          overflow-hidden
+          lg:block hidden
+          ${topPopupOpen ? "w-[550px] opacity-100" : "w-0 opacity-0"}
+        `}
       ></div>
 
       {/* Chart Section */}
       <div className={`${isMobile ? "w-full" : "w-4/5"} px-2 md:p-4`}>
         <div className="rounded-xl h-full">
-          <ChartSection investment={investment} />
+          <ChartSection investment={numericInvestment} />
         </div>
       </div>
 
@@ -355,6 +371,7 @@ const TradeChart = () => {
                   alt=""
                   className="h-4 w-4 overflow-hidden rounded-full object-cover"
                 />
+
                 <img
                   src={flag2}
                   alt=""
@@ -366,7 +383,9 @@ const TradeChart = () => {
                 <span className="font-semibold text-xs text-white">
                   USD/JPY (OTC)
                 </span>
+
                 <div className="text-[#C77AFF] font-bold text-xs">93%</div>
+
                 <span>
                   <FaCaretDown className="text-[#C77AFF] text-xl" />
                 </span>
@@ -394,34 +413,23 @@ const TradeChart = () => {
                 Investment
               </label>
 
-              <div className="flex items-center justify-between bg-[#12061C] border border-[#2a1b3d] rounded-[10px] p-1 md:p-1 h-[4vh] md:h-[6vh]">
-                <button
-                  onClick={() => handleInvestmentChange(-1)}
-                  className="bg-[#1C0F2B] border border-[#2a1b3d] text-[#C77AFF] w-10 h-full rounded-[8px] text-lg font-bold flex items-center justify-center hover:bg-[#2a1b3d] transition-colors"
-                >
-                  -
-                </button>
+              <div className="flex items-center bg-[#12061C] border border-[#2a1b3d] rounded-[10px] px-3 h-[4vh] md:h-[6vh] focus-within:border-[#B45CFF]/60 focus-within:ring-2 focus-within:ring-[#B45CFF]/10 transition-all">
+                {/* Rupee Icon */}
+                <span className="text-[#C77AFF] text-base md:text-lg font-bold mr-2">
+                  ₹
+                </span>
 
-                <div className="flex items-center space-x-1 text-center text-xs md:text-sm">
-                  <p className="text-sm font-bold size-fit mt-[2px] text-[#C77AFF]">
-                    <FiDollarSign />
-                  </p>
-
-                  <input
-                    type="number"
-                    value={investment}
-                    onChange={(e) => setInvestment(e.target.value)}
-                    placeholder="investment"
-                    className="text-white font-bold text-sm w-[50px] bg-transparent border-none focus:outline-none text-center"
-                  />
-                </div>
-
-                <button
-                  onClick={() => handleInvestmentChange(1)}
-                  className="bg-[#1C0F2B] border border-[#2a1b3d] text-[#C77AFF] w-10 h-full rounded-[8px] text-lg font-bold flex items-center justify-center hover:bg-[#2a1b3d] transition-colors"
-                >
-                  +
-                </button>
+                {/* Custom Amount Input */}
+                <input
+                  type="number"
+                  min="0"
+                  value={investment}
+                  onChange={(e) => {
+                    setInvestment(e.target.value);
+                  }}
+                  placeholder="Enter amount"
+                  className="w-full bg-transparent border-none outline-none text-white font-bold text-sm text-center placeholder:text-gray-600"
+                />
               </div>
             </div>
           </div>
@@ -431,29 +439,33 @@ const TradeChart = () => {
             <div className="grid grid-cols-2 md:grid-cols-1 gap-2 md:gap-3 mb-3 md:mb-4">
               {/* UP */}
               <button
-                disabled={isDisabled}
+                disabled={isDisabled || numericInvestment <= 0}
                 onClick={handleUp}
                 className={`${purpleGradient} text-white px-5 py-2 md:px-10 md:py-3 rounded-[11px] h-[5vh] md:h-[6vh] flex items-center justify-between font-bold space-x-1 md:space-x-2 transition-all text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <span>Up</span>
+
                 <FaArrowUp className="text-xs md:text-sm bg-white/20 size-6 p-1 rounded-full" />
               </button>
 
+              {/* Payout */}
               <p className="text-center text-sm hidden md:flex items-center justify-center text-gray-300">
                 Your payout:{" "}
                 <span className="font-bold flex items-center text-white">
-                  <FiDollarSign className="mt-1 text-[#C77AFF]" />
-                  {(investment + investment * 0.93).toFixed(2)}
+                  <span className="mt-1 text-[#C77AFF]">₹</span>
+
+                  {(numericInvestment + numericInvestment * 0.93).toFixed(2)}
                 </span>
               </p>
 
               {/* DOWN */}
               <button
-                disabled={isDisabled}
+                disabled={isDisabled || numericInvestment <= 0}
                 onClick={handleDown}
                 className="bg-[#1C0F2B] border-2 border-[#9B59B6]/50 hover:bg-[#2a1b3d] text-[#E74C3C] px-5 py-2 md:px-10 md:py-3 rounded-[11px] h-[5vh] md:h-[6vh] flex items-center justify-between font-bold space-x-1 md:space-x-2 transition-all text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Down</span>
+
                 <FaArrowDown className="text-xs md:text-sm bg-red-500/20 text-[#E74C3C] size-6 p-1 rounded-full" />
               </button>
             </div>
@@ -489,6 +501,7 @@ const TradeChart = () => {
           {/* Tooltip */}
           <div className="text-xxs md:text-xs text-gray-400 text-center p-2 md:p-3 hidden md:flex items-center justify-center gap-2 bg-[#12061C] border border-[#2a1b3d] rounded-[10px] leading-relaxed">
             <span className="text-[#C77AFF] text-base">◷</span>
+
             <span>
               Opening deals by time is currently available only for OTC trading.
             </span>
@@ -508,10 +521,12 @@ const TradeChart = () => {
               onClick={() => setActiveTab("trades")}
             >
               <span className="mr-1 md:mr-2">Trades</span>
+
               <span className="bg-[#9B59B6]/30 text-white px-1 md:px-2 py-0.5 rounded text-xxs md:text-xs">
                 {traderhistory?.length}
               </span>
             </button>
+
             <button
               className={`flex-1 py-2 md:py-3 flex items-center justify-center text-xs md:text-sm rounded ${
                 activeTab === "orders"
@@ -521,6 +536,7 @@ const TradeChart = () => {
               onClick={() => setActiveTab("orders")}
             >
               <FaList className="mr-1 md:mr-2 text-xs md:text-sm" />
+
               <span className="bg-[#9B59B6]/30 text-white px-1 md:px-2 py-0.5 rounded text-xxs md:text-xs">
                 {pendingResult?.length || "0"}
               </span>
@@ -538,7 +554,10 @@ const TradeChart = () => {
                 <div className="overflow-x-hidden w-full text-center">
                   <div className="w-full text-sm text-gray-300 space-y-3 overflow-auto h-[40vh]">
                     {traderhistory?.map((trade) => (
-                      <div className="border-b border-[#2a1b3d]">
+                      <div
+                        key={trade?._id || trade?.id}
+                        className="border-b border-[#2a1b3d]"
+                      >
                         <div className="flex items-center gap-2">
                           <div className="flex items-center relative w-8">
                             <img
@@ -546,28 +565,32 @@ const TradeChart = () => {
                               alt=""
                               className="h-4 w-4 overflow-hidden rounded-full object-cover"
                             />
+
                             <img
                               src={flag2}
                               alt=""
                               className="h-4 w-4 overflow-hidden rounded-full object-cover absolute left-2.5"
                             />
                           </div>
+
                           <div className="flex justify-between item-center w-full">
                             <span className="text-white text-sm font-semibold">
                               USD/JPY ( OT ....
                             </span>
+
                             <span className="text-gray-400 text-sm font-medium uppercase">
                               {trade?.bet}
                             </span>
                           </div>
                         </div>
+
                         <div className="flex justify-between items-center">
                           <div>
                             <span className="text-white text-sm font-semibold">
-                              {" "}
                               {trade.amount}
                             </span>
                           </div>
+
                           <div>
                             <span
                               className={`text-sm font-semibold ${
@@ -580,7 +603,7 @@ const TradeChart = () => {
                             >
                               {trade.status === 0
                                 ? "Pending"
-                                : "$" + trade.getAmount}
+                                : "₹" + trade.getAmount}
                             </span>
                           </div>
                         </div>
@@ -594,7 +617,10 @@ const TradeChart = () => {
                 <div className="overflow-x-hidden w-full text-center">
                   <div className="w-full text-sm text-gray-300 space-y-3 overflow-auto h-[40vh]">
                     {pendingResult?.map((trade) => (
-                      <div className="border-b border-[#2a1b3d]">
+                      <div
+                        key={trade?._id || trade?.id}
+                        className="border-b border-[#2a1b3d]"
+                      >
                         <div className="flex items-center gap-2">
                           <div className="flex items-center relative w-8">
                             <img
@@ -602,28 +628,32 @@ const TradeChart = () => {
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover"
                             />
+
                             <img
                               src={flag2}
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover absolute left-2.5"
                             />
                           </div>
+
                           <div className="flex justify-between item-center w-full">
                             <span className="text-white text-base font-semibold">
                               USD/JPY ( OT ....
                             </span>
+
                             <span className="text-gray-400 font-medium uppercase">
                               {trade?.bet}
                             </span>
                           </div>
                         </div>
+
                         <div className="flex justify-between items-center">
                           <div>
                             <span className="text-white text-base font-semibold">
-                              {" "}
                               {trade.amount}
                             </span>
                           </div>
+
                           <div>
                             <span
                               className={`text-base font-semibold ${
@@ -636,7 +666,7 @@ const TradeChart = () => {
                             >
                               {trade.status === 0
                                 ? "Pending"
-                                : "$" + trade.getAmount}
+                                : "₹" + trade.getAmount}
                             </span>
                           </div>
                         </div>
@@ -661,6 +691,8 @@ const TradeChart = () => {
           </button>
         </div>
       </div>
+
+      {/* Mobile History Button */}
       <div className="absolute top-20 left-2 block md:hidden">
         <div
           onClick={() => setHistory(!history)}
@@ -669,9 +701,10 @@ const TradeChart = () => {
           <MdWorkHistory className="text-2xl text-[#C77AFF]" />
         </div>
       </div>
+
+      {/* Mobile History */}
       {history && (
         <div className="bg-[#1C0F2B] border border-[#2a1b3d] rounded flex-grow md:flex flex-col w-full absolute bottom-10 z-20">
-          {/* Tabs */}
           <div className="flex border-b gap-2 border-[#2a1b3d]">
             <button
               className={`flex-1 py-2 md:py-3 flex items-center justify-center rounded text-xs md:text-sm ${
@@ -682,10 +715,12 @@ const TradeChart = () => {
               onClick={() => setActiveTab("trades")}
             >
               <span className="mr-1 md:mr-2">Trades</span>
+
               <span className="bg-[#9B59B6]/30 text-white px-1 md:px-2 py-0.5 rounded text-xxs md:text-xs">
                 {traderhistory?.length}
               </span>
             </button>
+
             <button
               className={`flex-1 py-2 md:py-3 flex items-center justify-center text-xs md:text-sm rounded ${
                 activeTab === "orders"
@@ -695,13 +730,13 @@ const TradeChart = () => {
               onClick={() => setActiveTab("orders")}
             >
               <FaList className="mr-1 md:mr-2 text-xs md:text-sm" />
+
               <span className="bg-[#9B59B6]/30 text-white px-1 md:px-2 py-0.5 rounded text-xxs md:text-xs">
                 {pendingResult?.length || "0"}
               </span>
             </button>
           </div>
 
-          {/* Content */}
           <div
             className={`flex-grow p-2 md:p-2 ${
               isExpanded ? "block" : "hidden"
@@ -712,7 +747,10 @@ const TradeChart = () => {
                 <div className="overflow-x-hidden w-full text-center">
                   <div className="w-full text-sm text-gray-300 space-y-3 overflow-auto h-[30vh]">
                     {traderhistory?.map((trade) => (
-                      <div className="border-b border-[#2a1b3d]">
+                      <div
+                        key={trade?._id || trade?.id}
+                        className="border-b border-[#2a1b3d]"
+                      >
                         <div className="flex items-center gap-2">
                           <div className="flex items-center relative w-8">
                             <img
@@ -720,28 +758,32 @@ const TradeChart = () => {
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover"
                             />
+
                             <img
                               src={flag2}
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover absolute left-2.5"
                             />
                           </div>
+
                           <div className="flex justify-between item-center w-full">
                             <span className="text-white text-sm font-semibold">
                               USD/JPY ( OT ....
                             </span>
+
                             <span className="text-gray-400 font-medium uppercase">
                               {trade?.bet}
                             </span>
                           </div>
                         </div>
+
                         <div className="flex justify-between items-center">
                           <div>
                             <span className="text-white text-sm font-semibold">
-                              {" "}
                               {trade.amount}
                             </span>
                           </div>
+
                           <div>
                             <span
                               className={`text-sm font-semibold ${
@@ -754,7 +796,7 @@ const TradeChart = () => {
                             >
                               {trade.status === 0
                                 ? "Pending"
-                                : "$" + trade.getAmount}
+                                : "₹" + trade.getAmount}
                             </span>
                           </div>
                         </div>
@@ -768,7 +810,10 @@ const TradeChart = () => {
                 <div className="overflow-x-hidden w-full text-center">
                   <div className="w-full text-sm text-gray-300 space-y-3 overflow-auto h-[40vh]">
                     {pendingResult?.map((trade) => (
-                      <div className="border-b border-[#2a1b3d]">
+                      <div
+                        key={trade?._id || trade?.id}
+                        className="border-b border-[#2a1b3d]"
+                      >
                         <div className="flex items-center gap-2">
                           <div className="flex items-center relative w-8">
                             <img
@@ -776,28 +821,32 @@ const TradeChart = () => {
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover"
                             />
+
                             <img
                               src={flag2}
                               alt=""
                               className="h-5 w-5 overflow-hidden rounded-full object-cover absolute left-2.5"
                             />
                           </div>
+
                           <div className="flex justify-between item-center w-full">
                             <span className="text-white text-sm font-semibold">
                               USD/JPY ( OT ....
                             </span>
+
                             <span className="text-gray-400 font-medium uppercase">
                               {trade?.bet}
                             </span>
                           </div>
                         </div>
+
                         <div className="flex justify-between items-center">
                           <div>
                             <span className="text-white text-sm font-semibold">
-                              {" "}
                               {trade.amount}
                             </span>
                           </div>
+
                           <div>
                             <span
                               className={`text-sm font-semibold ${
@@ -810,7 +859,7 @@ const TradeChart = () => {
                             >
                               {trade.status === 0
                                 ? "Pending"
-                                : "$" + trade.getAmount}
+                                : "₹" + trade.getAmount}
                             </span>
                           </div>
                         </div>
@@ -822,7 +871,6 @@ const TradeChart = () => {
             )}
           </div>
 
-          {/* Toggle Button */}
           <button
             className="w-full py-1 md:py-2 bg-[#12061C] hover:bg-[#2a1b3d] transition-colors flex items-center justify-center text-[#C77AFF]"
             onClick={toggleExpand}
@@ -836,6 +884,7 @@ const TradeChart = () => {
         </div>
       )}
 
+      {/* Trade Pair Selector */}
       {showButton && (
         <div className="fixed inset-0 z-[999] bg-black/70 flex items-start md:items-center justify-center">
           <div className="relative w-full h-full md:w-[750px] md:h-[600px] md:rounded-2xl bg-[#1C0F2B] border border-[#2a1b3d] shadow-[0_15px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col">
@@ -843,6 +892,7 @@ const TradeChart = () => {
             <div className="flex items-center justify-between px-4 md:px-5 py-3.5 md:py-4 border-b border-[#2a1b3d] bg-[#12061C] shrink-0">
               <div className="flex items-center gap-2">
                 <div className={`w-1 h-6 rounded-full ${purpleGradient}`} />
+
                 <h3 className="font-bold text-base md:text-lg text-white">
                   Select trade pair
                 </h3>
@@ -869,6 +919,7 @@ const TradeChart = () => {
                   }`}
                 >
                   {filter}
+
                   {activeFilter === filter && (
                     <span
                       className={`absolute left-1 right-1 bottom-0 h-[2px] rounded-full ${purpleGradient}`}
@@ -917,6 +968,7 @@ const TradeChart = () => {
                         className="relative w-10 h-7 mr-3 shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
+
                           setFavorites((prev) =>
                             prev.includes(asset.id)
                               ? prev.filter((id) => id !== asset.id)
@@ -929,6 +981,7 @@ const TradeChart = () => {
                           alt=""
                           className="absolute left-0 top-0 w-7 h-7 rounded-full object-cover border-2 border-[#1C0F2B] shadow-sm z-10"
                         />
+
                         <img
                           src={asset.flag2}
                           alt=""
@@ -940,6 +993,7 @@ const TradeChart = () => {
                         <span className="text-sm font-bold text-white truncate">
                           {asset.pair}
                         </span>
+
                         <span className="text-[10px] text-gray-500 uppercase mt-0.5">
                           {asset.type}
                         </span>
@@ -948,7 +1002,11 @@ const TradeChart = () => {
 
                     <div className="flex items-center gap-2 shrink-0">
                       <span
-                        className={`flex items-center text-xs font-bold ${asset.change >= 0 ? "text-[#00E676]" : "text-[#E74C3C]"}`}
+                        className={`flex items-center text-xs font-bold ${
+                          asset.change >= 0
+                            ? "text-[#00E676]"
+                            : "text-[#E74C3C]"
+                        }`}
                       >
                         {asset.change >= 0 ? (
                           <FaArrowUp className="mr-1 text-[10px]" />
@@ -970,6 +1028,7 @@ const TradeChart = () => {
                     <span className="text-[10px] text-gray-500">
                       Profit 30 sec
                     </span>
+
                     <span className="text-[10px] font-semibold text-[#C77AFF]">
                       1+ min: {asset.payout2}%
                     </span>
@@ -986,12 +1045,15 @@ const TradeChart = () => {
                     <th className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]">
                       Name
                     </th>
+
                     <th className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]">
                       24h change
                     </th>
+
                     <th className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]">
                       Profit 30 sec
                     </th>
+
                     <th className="px-6 py-3.5 text-left text-[11px] font-bold text-gray-500 uppercase tracking-[0.08em]">
                       1+ min
                     </th>
@@ -1019,6 +1081,7 @@ const TradeChart = () => {
                             className="mr-3 text-gray-500 hover:text-[#C77AFF] transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
+
                               setFavorites((prev) =>
                                 prev.includes(asset.id)
                                   ? prev.filter((id) => id !== asset.id)
@@ -1032,6 +1095,7 @@ const TradeChart = () => {
                                 alt=""
                                 className="h-5 w-5 rounded-full object-cover border border-[#1C0F2B]"
                               />
+
                               <img
                                 src={asset.flag2}
                                 alt=""
@@ -1042,6 +1106,7 @@ const TradeChart = () => {
 
                           <span className="text-white font-semibold text-sm">
                             {asset.pair}
+
                             <span className="text-gray-500 ml-1 font-normal">
                               ({asset.type})
                             </span>
@@ -1051,7 +1116,11 @@ const TradeChart = () => {
 
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div
-                          className={`flex items-center font-semibold ${asset.change >= 0 ? "text-[#00E676]" : "text-[#E74C3C]"}`}
+                          className={`flex items-center font-semibold ${
+                            asset.change >= 0
+                              ? "text-[#00E676]"
+                              : "text-[#E74C3C]"
+                          }`}
                         >
                           {asset.change >= 0 ? (
                             <FaArrowUp className="mr-1 text-xs" />
@@ -1081,17 +1150,21 @@ const TradeChart = () => {
           </div>
         </div>
       )}
+
+      {/* Coming Soon */}
       {comming && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-[#1C0F2B] border border-[#9B59B6]/40 p-6 rounded text-center shadow-[0_8px_32px_rgba(0,0,0,0.6)] max-w-lg w-full">
             <h2 className="text-xl font-semibold mb-2 text-white">
               Coming Soon!
             </h2>
+
             <p className="text-gray-400">
               This chart is not available at the moment. For technical reasons,
               we cannot show the chart of this pair, please choose another
               trading pair.
             </p>
+
             <button
               onClick={() => setComming(false)}
               className={`mt-4 px-4 py-2 ${purpleGradient} text-white rounded`}

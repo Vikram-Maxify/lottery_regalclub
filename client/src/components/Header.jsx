@@ -13,6 +13,7 @@ import {
   MessageCircle,
   Plus,
   PlusCircle,
+  PlusIcon,
   PowerIcon,
   Sparkles,
   User,
@@ -500,18 +501,19 @@ const Header = ({ children }) => {
 
             {/* Floating Promo Button */}
             <Link
-              to="https://regalclub.live/promo"
+              to="https://regalclub.live/deposit"
               className="absolute left-1/2 -translate-x-1/2 -top-7 group perspective-1000"
             >
               <div className="relative transform-gpu transition-all duration-700 hover:rotate-y-12 hover:scale-110 hover:-translate-y-2 [transform-style:preserve-3d]">
                 <div className="absolute inset-0 bg-gradient-to-r from-[#B45CFF] to-[#7418F5] blur-2xl opacity-30 group-hover:opacity-70 transition-all duration-700 animate-pulse-slow"></div>
                 <div className="w-[78px] h-[78px] rounded-full bg-[#1C0F2B] shadow-2xl relative border border-[#2a1b3d]">
-                  <div
-                    className={`w-full h-full rounded-full ${purpleGradient} flex flex-col items-center justify-center group-hover:scale-105 transition-all duration-500`}
-                  >
-                    <Gift size={22} className="text-white" strokeWidth={2.3} />
-                    <span className="text-[9px] font-bold text-white leading-none mt-0.5">
-                      Promo
+                  <div className="w-full h-full rounded-full bg-gradient-to-br from-[#B45CFF] via-[#7418F5] to-[#3A00C9] border border-[#C77AFF] shadow-[0_0_8px_#B45CFF,0_0_18px_rgba(139,43,255,0.75),inset_0_2px_4px_rgba(255,255,255,0.45),inset_0_-5px_8px_rgba(30,0,100,0.45)] flex flex-col items-center justify-center group-hover:scale-105 transition-all duration-500">
+                    <span className="text-3xl font-bold text-white leading-none mt-0.5">
+                      <PlusIcon
+                        size={42}
+                        className="text-white text-3xl"
+                        strokeWidth={3}
+                      />
                     </span>
                   </div>
                 </div>
